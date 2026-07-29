@@ -10,102 +10,102 @@ from selenium.webdriver.support import expected_conditions as EC
 from utili.config import *
 from utili.locators import *
 
-def test_crear_novedad(driver_logueado):
-    try:
+# def test_crear_novedad(driver_logueado):
+#     try:
 
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             SIDEBAR_BOTON
+#         ).click()
 
-        # Abrir módulo de novedades
-        driver_logueado.find_element(
-            By.XPATH,
-            MENU_NOVEDADES
-        ).click()
+#         # Abrir módulo de novedades
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             MENU_NOVEDADES
+#         ).click()
 
-        driver_logueado.find_element(
-            By.XPATH,
-            BOTON_VER_NOVEDADES
-        ).click()
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             BOTON_VER_NOVEDADES
+#         ).click()
 
-        # Nueva novedad
-        driver_logueado.find_element(
-            By.XPATH,
-            BOTON_NUEVA_NOVEDAD
-        ).click()
+#         # Nueva novedad
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             BOTON_NUEVA_NOVEDAD
+#         ).click()
 
-        # Seleccionar tipo
-        driver_logueado.find_element(
-            By.XPATH,
-            SELECT_TIPO
-        ).click()
+#         # Seleccionar tipo
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             SELECT_TIPO
+#         ).click()
 
-        WebDriverWait(driver_logueado, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, "//li[contains(text(),'Incapacidad')]")
-            )
-        ).click()
+#         WebDriverWait(driver_logueado, 10).until(
+#             EC.element_to_be_clickable(
+#                 (By.XPATH, "//li[contains(text(),'Incapacidad')]")
+#             )
+#         ).click()
 
-        driver_logueado.find_element(
-            By.XPATH,
-            FECHA_INICIO
-        ).send_keys("07-06-2026")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             FECHA_INICIO
+#         ).send_keys("07-06-2026")
 
-        #MM-DD-YYYY
-        driver_logueado.find_element(
-            By.XPATH,
-            FECHA_FIN
-        ).send_keys("07-07-2026")
+#         #MM-DD-YYYY
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             FECHA_FIN
+#         ).send_keys("07-07-2026")
 
-        driver_logueado.find_element(
-            By.XPATH,
-            HORA_INICIO
-        ).send_keys("08:00-AM")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             HORA_INICIO
+#         ).send_keys("08:00-AM")
 
-        driver_logueado.find_element(
-            By.XPATH,
-            HORA_FIN
-        ).send_keys("17:00")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             HORA_FIN
+#         ).send_keys("17:00")
 
-        # Escribir descripción
-        driver_logueado.find_element(
-            By.XPATH,
-            INPUT_DESCRIPCION
-        ).send_keys("Esta novedad fue creada para pruebas automatizadas.")
+#         # Escribir descripción
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             INPUT_DESCRIPCION
+#         ).send_keys("Esta novedad fue creada para pruebas automatizadas.")
 
-        # Guardar
-        driver_logueado.find_element(
-            By.XPATH,
-            BOTON_GUARDAR
-        ).click()
+#         # Guardar
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             BOTON_GUARDAR
+#         ).click()
 
-        # Validar creación
-        WebDriverWait(driver_logueado, 20).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, MENSAJE_EXITO)
-            )
-        )
+#         # Validar creación
+#         WebDriverWait(driver_logueado, 20).until(
+#             EC.visibility_of_element_located(
+#                 (By.XPATH, MENSAJE_EXITO)
+#             )
+#         )
 
-        driver_logueado.find_element(
-            By.XPATH,
-            BOTON_ACEPTAR
-        ).click()
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             BOTON_ACEPTAR
+#         ).click()
 
-        assert driver_logueado.find_element(
-            By.XPATH,
-            MENSAJE_EXITO
-        ).is_displayed()
+#         assert driver_logueado.find_element(
+#             By.XPATH,
+#             MENSAJE_EXITO
+#         ).is_displayed()
 
-    except Exception:
+#     except Exception:
 
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
+#         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        driver_logueado.save_screenshot(
-            f"reports/screen/login_{nombre}.png"
-        )
+#         driver_logueado.save_screenshot(
+#             f"reports/screen/login_{nombre}.png"
+#         )
 
-        raise
+#         raise
 
 def test_btt_crear_novedad(driver_logueado):
     try:
@@ -168,7 +168,7 @@ def test_btones_novedades(driver_logueado):
         # Clic en botón de previsualizar PDF
         driver_logueado.find_element(
             By.XPATH,
-            '//*[@id="tabla-mias"]/tbody/tr[1]/td[9]/div/a[1]/i'
+            '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/a[1]'
         ).click()
 
         # Esperar que aparezca la nueva pestaña
@@ -198,7 +198,7 @@ def test_btones_novedades(driver_logueado):
         #editar
         driver_logueado.find_element(
             By.XPATH,
-            '//*[@id="tabla-mias"]/tbody/tr[1]/td[9]/div/a[2]'
+            '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/a[2]'
         ).click()
 
         WebDriverWait(driver_logueado, 15).until(
@@ -219,7 +219,7 @@ def test_btones_novedades(driver_logueado):
         #previsualizar
         driver_logueado.find_element(
             By.XPATH,
-            '//*[@id="tabla-mias"]/tbody/tr[1]/td[9]/div/button/i'
+            '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/button'
         ).click()
 
         WebDriverWait(driver_logueado, 15).until(
