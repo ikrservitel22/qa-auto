@@ -1,0 +1,29 @@
+services:
+
+  qa-dev:
+
+    build: .
+
+    container_name: qa-dev
+
+    restart: unless-stopped
+
+    ports:
+      - "2222:22"
+
+    volumes:
+      - .:/workspace
+
+    tty: true
+
+  chrome:
+
+    image: selenium/standalone-chrome:latest
+
+    container_name: selenium-chrome
+
+    shm_size: 2gb
+
+    ports:
+      - "4444:4444"
+      - "7900:7900"
