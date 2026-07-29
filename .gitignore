@@ -1,0 +1,33 @@
+# Entornos virtuales
+venv/
+.venv/
+env/
+
+# Caché de Python
+__pycache__/
+*.py[cod]
+*.pyo
+
+# Pytest
+.pytest_cache/
+
+# Reportes
+reports/
+htmlcov/
+.coverage
+
+# Archivos temporales
+*.log
+*.tmp
+
+# Configuración sensible
+credentials.json
+.env
+
+# IDEs
+.vscode/
+.idea/
+
+# Sistema operativo
+.DS_Store
+Thumbs.db
