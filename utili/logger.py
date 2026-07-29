@@ -1,15 +1,22 @@
-from datetime import datetime
+import logging
 import os
 
 os.makedirs("reports/logs", exist_ok=True)
 
+logger = logging.getLogger("automatizacion")
+logger.setLevel(logging.INFO)
 
-def escribir_log(nombre_test, mensaje):
+if not logger.handlers:
 
-    archivo = f"reports/logs/{nombre_test}.log"
+    archivo = logging.FileHandler(
+        "reports/logs/ejecucion.log",
+        encoding="utf-8"
+    )
 
-    with open(archivo, "a", encoding="utf-8") as log:
+    formato = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(message)s"
+    )
 
-        hora = datetime.now().strftime("%H:%M:%S")
+    archivo.setFormatter(formato)
 
-        log.write(f"[{hora}] {mensaje}\n")
+    logger.addHandler(archivo)

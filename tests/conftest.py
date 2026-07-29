@@ -46,21 +46,30 @@ def driver():
 @pytest.fixture
 def driver_logueado(driver):
 
+    logger.info("========== INICIO TEST ==========")
+
+    logger.info(f"URL: {URL}")
+    logger.info(f"USUARIO: {USUARIO}")
+
+    logger.info("Escribiendo usuario")
     driver.find_element(
         By.XPATH,
         LOGIN_USUARIO
     ).send_keys(USUARIO)
 
+    logger.info("Escribiendo contraseña")
     driver.find_element(
         By.XPATH,
         LOGIN_PASSWORD
     ).send_keys(PASSWORD)
 
+    logger.info("Pulsando botón Ingresar")
     driver.find_element(
         By.XPATH,
         LOGIN_BOTON
     ).click()
 
+    logger.info("Esperando Dashboard")
     WebDriverWait(driver, 5).until(
         EC.url_contains("dashboard")
     )

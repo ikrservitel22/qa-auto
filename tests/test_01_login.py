@@ -1,69 +1,66 @@
-from selenium import webdriver
-from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from datetime import datetime
-import pytest
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 
 from utili.config import *
 from utili.locators import *
-
-
-def log(mensaje):
-    print(f"[{datetime.now().strftime('%H:%M:%S')}] {mensaje}")
+from utili.logger import logger
 
 
 def test_login(driver):
 
     try:
 
-        log("Abriendo página de login")
+        logger.info("========== INICIO TEST_LOGIN ==========")
 
-        print(f"URL: {URL}")
-        print(f"USUARIO: {USUARIO}")
+        logger.info(f"URL: {URL}")
+        logger.info(f"USUARIO: {USUARIO}")
 
-        log("Escribiendo usuario")
+        logger.info("Escribiendo usuario")
         driver.find_element(
             By.XPATH,
             LOGIN_USUARIO
         ).send_keys(USUARIO)
 
-        log("Escribiendo contraseña")
+        logger.info("Escribiendo contraseña")
         driver.find_element(
             By.XPATH,
             LOGIN_PASSWORD
         ).send_keys(PASSWORD)
 
-        log("Pulsando botón Ingresar")
+        logger.info("Pulsando botón Ingresar")
         driver.find_element(
             By.XPATH,
             LOGIN_BOTON
         ).click()
 
-        log("Esperando Dashboard")
+        logger.info("Esperando Dashboard")
+
         WebDriverWait(driver, 5).until(
             EC.url_contains("dashboard")
         )
 
-        log(f"URL actual: {driver.current_url}")
+        logger.info(f"URL actual: {driver.current_url}")
 
         assert "dashboard" in driver.current_url
 
-        log("LOGIN EXITOSO")
+        logger.info("LOGIN EXITOSO")
+        logger.info("========== FIN TEST_LOGIN ==========\n")
 
     except Exception as e:
 
-        log(f"ERROR: {e}")
-        log(f"URL al fallar: {driver.current_url}")
+        logger.exception(f"ERROR EN TEST_LOGIN: {e}")
+        logger.info(f"URL al fallar: {driver.current_url}")
 
         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        driver.save_screenshot(
-            f"reports/screen/login_{nombre}.png"
-        )
+        ruta = f"reports/screen/login_{nombre}.png"
 
-        log(f"Captura guardada: reports/screen/login_{nombre}.png")
+        driver.save_screenshot(ruta)
+
+        logger.info(f"Captura guardada: {ruta}")
+        logger.info("========== FIN TEST_LOGIN ==========\n")
 
         raise
 
@@ -72,43 +69,47 @@ def test_logout(driver_logueado):
 
     try:
 
-        log("Abriendo menú lateral")
+        logger.info("========== INICIO TEST_LOGOUT ==========")
+
+        logger.info("Abriendo menú lateral")
 
         driver_logueado.find_element(
             By.XPATH,
             SIDEBAR_BOTON
         ).click()
 
-        log("Pulsando Cerrar sesión")
+        logger.info("Pulsando Cerrar sesión")
 
         driver_logueado.find_element(
             By.XPATH,
             LOGOUT_BOTON
         ).click()
 
-        log("Esperando regresar al Login")
+        logger.info("Esperando regresar al Login")
 
         WebDriverWait(driver_logueado, 5).until(
             lambda d: d.current_url == URL
         )
 
-        log(f"URL actual: {driver_logueado.current_url}")
+        logger.info(f"URL actual: {driver_logueado.current_url}")
 
         assert driver_logueado.current_url == URL
 
-        log("LOGOUT EXITOSO")
+        logger.info("LOGOUT EXITOSO")
+        logger.info("========== FIN TEST_LOGOUT ==========\n")
 
     except Exception as e:
 
-        log(f"ERROR: {e}")
-        log(f"URL al fallar: {driver_logueado.current_url}")
+        logger.exception(f"ERROR EN TEST_LOGOUT: {e}")
+        logger.info(f"URL al fallar: {driver_logueado.current_url}")
 
         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        driver_logueado.save_screenshot(
-            f"reports/screen/login_{nombre}.png"
-        )
+        ruta = f"reports/screen/login_{nombre}.png"
 
-        log(f"Captura guardada: reports/screen/login_{nombre}.png")
+        driver_logueado.save_screenshot(ruta)
+
+        logger.info(f"Captura guardada: {ruta}")
+        logger.info("========== FIN TEST_LOGOUT ==========\n")
 
         raise
