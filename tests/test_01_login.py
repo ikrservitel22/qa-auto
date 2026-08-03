@@ -6,6 +6,7 @@ from selenium.webdriver.support import expected_conditions as EC
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
+from utili.errores import tipificar_error
 
 
 def test_login(driver):
@@ -50,8 +51,12 @@ def test_login(driver):
 
     except Exception as e:
 
-        logger.exception(f"ERROR EN TEST_LOGIN: {e}")
-        logger.info(f"URL al fallar: {driver.current_url}")
+        tipo_error = tipificar_error(e)
+
+        logger.error("========== ERROR: TEST_LOGIN ==========")
+        logger.error(f"TIPO DE ERROR: {tipo_error}")
+        logger.error(f"DETALLE: {e}")
+        logger.error(f"URL: {driver.current_url}")
 
         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -59,8 +64,8 @@ def test_login(driver):
 
         driver.save_screenshot(ruta)
 
-        logger.info(f"Captura guardada: {ruta}")
-        logger.info("========== FIN TEST_LOGIN ==========\n")
+        logger.error(f"CAPTURA: {ruta}")
+        logger.error("========== FIN TEST_LOGIN ==========\n")
 
         raise
 
@@ -100,8 +105,12 @@ def test_logout(driver_logueado):
 
     except Exception as e:
 
-        logger.exception(f"ERROR EN TEST_LOGOUT: {e}")
-        logger.info(f"URL al fallar: {driver_logueado.current_url}")
+        tipo_error = tipificar_error(e)
+
+        logger.error("========== ERROR: TEST_LOGOUT ==========")
+        logger.error(f"TIPO DE ERROR: {tipo_error}")
+        logger.error(f"DETALLE: {e}")
+        logger.error(f"URL: {driver_logueado.current_url}")
 
         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -109,7 +118,7 @@ def test_logout(driver_logueado):
 
         driver_logueado.save_screenshot(ruta)
 
-        logger.info(f"Captura guardada: {ruta}")
-        logger.info("========== FIN TEST_LOGOUT ==========\n")
+        logger.error(f"CAPTURA: {ruta}")
+        logger.error("========== FIN TEST_LOGOUT ==========\n")
 
         raise

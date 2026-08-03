@@ -1,3 +1,4 @@
+import logging
 import pytest
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
@@ -7,9 +8,38 @@ from selenium.webdriver.support import expected_conditions as EC
 import os
 import glob
 from datetime import datetime
-import pytest
 from utili.config import *
 from utili.locators import *
+from utili.logger import logger
+
+
+
+@pytest.fixture(scope="session", autouse=True)
+def reset_logger():
+    os.makedirs("/workspace/reports/logs", exist_ok=True)
+
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
+        handler.close()
+
+    archivo = logging.FileHandler(
+        "/workspace/reports/logs/ejecucion.log",
+        mode="w",
+        encoding="utf-8"
+    )
+
+    formato = logging.Formatter(
+        "%(asctime)s | %(levelname)s | %(message)s"
+    )
+
+    archivo.setFormatter(formato)
+    logger.addHandler(archivo)
+
+    yield
+
+    for handler in list(logger.handlers):
+        logger.removeHandler(handler)
+        handler.close()
 
 @pytest.fixture
 def driver():
@@ -31,6 +61,10 @@ def driver():
     }
 
     options.add_experimental_option("prefs", prefs)
+
+    options.add_argument("--disable-popup-blocking")
+    options.add_argument("--no-first-run")
+    options.add_argument("--disable-notifications")
 
     driver = webdriver.Remote(
         command_executor="http://selenium-chrome:4444/wd/hub",
@@ -73,5 +107,9 @@ def driver_logueado(driver):
     WebDriverWait(driver, 5).until(
         EC.url_contains("dashboard")
     )
+
+    logger.info(f"URL actual: {driver.current_url}")
+    logger.info("LOGIN EN FIXTURE driver_logueado EXITOSO")
+    logger.info("========== FIN FIXTURE driver_logueado ==========")
 
     return driver

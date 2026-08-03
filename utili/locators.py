@@ -18,3 +18,4 @@ MENSAJE_EXITO = '//*[@id="swal2-html-container"]'  ##mensaje de éxito al crear 
 BOTON_ACEPTAR = '/html/body/div[2]/div/div[6]/button[1]'  ##botón de aceptar cambios 
 
 BOTON_CREAR_NOVEDAD = '//*[@id="sidebarNav"]/div[2]/div/a[2]'  ##botón de crear novedad
+

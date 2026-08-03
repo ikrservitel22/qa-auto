@@ -10,6 +10,7 @@ if not logger.handlers:
 
     archivo = logging.FileHandler(
         "reports/logs/ejecucion.log",
+        mode="w",
         encoding="utf-8"
     )
 
