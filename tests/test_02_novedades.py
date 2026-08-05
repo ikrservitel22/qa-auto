@@ -14,121 +14,122 @@ from utili.errores import tipificar_error
 
 timeout = 10  # Tiempo de espera en segundos para WebDriverWait
 
-# def test_crear_novedad(driver_logueado):
-#     try:
+def test_crear_novedad(driver_logueado):
+    try:
 
-#         logger.info("========== INICIO TEST_CREAR_NOVEDAD ==========")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             SIDEBAR_BOTON
-#         ).click()
+        logger.info("========== INICIO TEST_CREAR_NOVEDAD ==========")
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
-#         logger.info("Abriendo módulo de novedades")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             MENU_NOVEDADES
-#         ).click()
+        logger.info("Abriendo módulo de novedades")
+        driver_logueado.find_element(
+            By.XPATH,
+            MENU_NOVEDADES
+        ).click()
 
-#         logger.info("Abriendo ver novedades")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             BOTON_VER_NOVEDADES
-#         ).click()
+        logger.info("Abriendo ver novedades")
+        driver_logueado.find_element(
+            By.XPATH,
+            BOTON_VER_NOVEDADES
+        ).click()
 
-#         logger.info("Abriendo crear novedad")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             BOTON_NUEVA_NOVEDAD
-#         ).click()
+        logger.info("Abriendo crear novedad")
+        driver_logueado.find_element(
+            By.XPATH,
+            BOTON_NUEVA_NOVEDAD
+        ).click()
 
-#         logger.info("Seleccionando tipo de novedad")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             SELECT_TIPO
-#         ).click()
+        logger.info("Seleccionando tipo de novedad")
+        driver_logueado.find_element(
+            By.XPATH,
+            SELECT_TIPO
+        ).click()
 
 
-#         logger.info("Seleccionando Incapacidad")
-#         WebDriverWait(driver_logueado, 10).until(
-#             EC.element_to_be_clickable(
-#                 (By.XPATH, "//li[contains(text(),'Incapacidad')]")
-#             )
-#         ).click()
+        logger.info("Seleccionando Incapacidad")
+        WebDriverWait(driver_logueado, 10).until(
+            EC.element_to_be_clickable(
+                (By.XPATH, "//li[contains(text(),'Incapacidad')]")
+            )
+        ).click()
 
-#         logger.info("Escribiendo fecha de inicio")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             FECHA_INICIO
-#         ).send_keys("07-06-2026")
+        logger.info("Escribiendo fecha de inicio")
+        driver_logueado.find_element(
+            By.XPATH,
+            FECHA_INICIO
+        ).send_keys("07-06-2026")
 
-#         #MM-DD-YYYY
-#         logger.info("Escribiendo fecha de fin")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             FECHA_FIN
-#         ).send_keys("07-07-2026")
+        #MM-DD-YYYY
+        logger.info("Escribiendo fecha de fin")
+        driver_logueado.find_element(
+            By.XPATH,
+            FECHA_FIN
+        ).send_keys("07-07-2026")
 
-#         logger.info("Escribiendo hora de inicio")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             HORA_INICIO
-#         ).send_keys("08:00-AM")
+        logger.info("Escribiendo hora de inicio")
+        driver_logueado.find_element(
+            By.XPATH,
+            HORA_INICIO
+        ).send_keys("08:00am")
 
-#         logger.info("Escribiendo hora de fin")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             HORA_FIN
-#         ).send_keys("17:00")
+        logger.info("Escribiendo hora de fin")
+        driver_logueado.find_element(
+            By.XPATH,
+            HORA_FIN
+        ).send_keys("17:00pm")
 
-#         logger.info("Escribiendo descripción")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             INPUT_DESCRIPCION
-#         ).send_keys("Esta novedad fue creada para pruebas automatizadas.")
+        logger.info("Escribiendo descripción")
+        driver_logueado.find_element(
+            By.XPATH,
+            INPUT_DESCRIPCION
+        ).send_keys("Esta novedad fue creada para pruebas automatizadas.")
 
-#         logger.info("Guardando novedad")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             BOTON_GUARDAR
-#         ).click()
+        logger.info("Guardando novedad")
+        driver_logueado.find_element(
+            By.XPATH,
+            BOTON_GUARDAR
+        ).click()
 
-#         logger.info("Esperando mensaje de éxito")
-#         WebDriverWait(driver_logueado, 20).until(
-#             EC.visibility_of_element_located(
-#                 (By.XPATH, MENSAJE_EXITO)
-#             )
-#         )
+        logger.info("Esperando mensaje de éxito")
+        WebDriverWait(driver_logueado, 20).until(
+            EC.visibility_of_element_located(
+                (By.XPATH, MENSAJE_EXITO)
+            )
+        )
 
-#         logger.info("Aceptando mensaje de éxito")
-#         driver_logueado.find_element(
-#             By.XPATH,
-#             BOTON_ACEPTAR
-#         ).click()
+        logger.info("Aceptando mensaje de éxito")
+        driver_logueado.find_element(
+            By.XPATH,
+            BOTON_ACEPTAR
+        ).click()
 
-#         assert driver_logueado.find_element(
-#             By.XPATH,
-#             MENSAJE_EXITO
-#         ).is_displayed()
+        assert driver_logueado.find_element(
+            By.XPATH,
+            MENSAJE_EXITO
+        ).is_displayed()
 
-#         logger.info("NOVEDAD CREADA EXITOSAMENTE")        logger.info("========== FIN TEST_CREAR_NOVEDAD ==========\n")
-#     except Exception as e:
-        # tipo_error = tipificar_error(e)
+        logger.info("NOVEDAD CREADA EXITOSAMENTE")        
+        logger.info("========== FIN TEST_CREAR_NOVEDAD ==========\n")
+    except Exception as e:
+        tipo_error = tipificar_error(e)
 
-        # logger.error("========== ERROR: TEST_BTT_CREAR_NOVEDAD ==========")
-        # logger.error(f"TIPO DE ERROR: {tipo_error}")
-        # logger.error(f"DETALLE: {e}")
-        # logger.error(f"URL: {driver_logueado.current_url}")
+        logger.error("========== ERROR: TEST_BTT_CREAR_NOVEDAD ==========")
+        logger.error(f"TIPO DE ERROR: {tipo_error}")
+        logger.error(f"DETALLE: {e}")
+        logger.error(f"URL: {driver_logueado.current_url}")
 
-#         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
+        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-#         ruta = f"reports/screen/novedades_{nombre}.png"
+        ruta = f"reports/screen/novedades_{nombre}.png"
 
-#         driver_logueado.save_screenshot(ruta)
+        driver_logueado.save_screenshot(ruta)
 
-#         logger.info(f"Captura guardada: {ruta}")
-#         logger.info("========== FIN TEST_CREAR_NOVEDAD ==========\n")
+        logger.info(f"Captura guardada: {ruta}")
+        logger.info("========== FIN TEST_CREAR_NOVEDAD ==========\n")
 
-#         raise
+        raise
 
 def test_btt_crear_novedad(driver_logueado):
     try:
