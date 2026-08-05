@@ -78,10 +78,10 @@ def test_logout(driver_logueado):
 
         logger.info("Abriendo menú lateral")
 
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Pulsando Cerrar sesión")
 

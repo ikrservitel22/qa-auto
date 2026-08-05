@@ -112,13 +112,12 @@ timeout = 10  # Tiempo de espera en segundos para WebDriverWait
 
 #         logger.info("NOVEDAD CREADA EXITOSAMENTE")        logger.info("========== FIN TEST_CREAR_NOVEDAD ==========\n")
 #     except Exception as e:
+        # tipo_error = tipificar_error(e)
 
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_BTT_CREAR_NOVEDAD ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
+        # logger.error("========== ERROR: TEST_BTT_CREAR_NOVEDAD ==========")
+        # logger.error(f"TIPO DE ERROR: {tipo_error}")
+        # logger.error(f"DETALLE: {e}")
+        # logger.error(f"URL: {driver_logueado.current_url}")
 
 #         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
@@ -135,10 +134,10 @@ def test_btt_crear_novedad(driver_logueado):
     try:
 
         logger.info("========== INICIO TEST_BTT_CREAR_NOVEDAD ==========")
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Abriendo módulo de novedades")
         driver_logueado.find_element(
@@ -187,10 +186,10 @@ def test_btones_novedades(driver_logueado):
     try:
 
         logger.info("========== INICIO TEST_BTONES_NOVEDADES ==========")
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Abriendo módulo de novedades")
         driver_logueado.find_element(

@@ -11,6 +11,7 @@ from datetime import datetime
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
+from selenium.webdriver.chrome.options import Options
 
 
 
@@ -51,16 +52,36 @@ def driver():
     for archivo in glob.glob("/workspace/descargas/*"):
         os.remove(archivo)
 
+    
+
     options = Options()
 
     prefs = {
+        # Carpeta donde se guardarán las descargas
         "download.default_directory": "/workspace/descargas",
+        # No preguntar dónde guardar
         "download.prompt_for_download": False,
+        # Crear/usar la carpeta automáticamente
         "download.directory_upgrade": True,
-        "safebrowsing.enabled": True
+        # No mostrar advertencias de archivos descargados
+        "safebrowsing.enabled": True,
+        # No abrir el PDF en el navegador
+        "plugins.always_open_pdf_externally": True,
+            # Desactivar guardar contraseñas
+        "credentials_enable_service": False,
+        "profile.password_manager_enabled": False
     }
 
     options.add_experimental_option("prefs", prefs)
+
+    # Abrir Chrome maximizado
+    options.add_argument("--start-maximized")
+
+    # Evitar mensaje "Chrome está siendo controlado..."
+    options.add_experimental_option(
+        "excludeSwitches",
+        ["enable-automation"]
+    )
 
     options.add_argument("--disable-popup-blocking")
     options.add_argument("--no-first-run")
@@ -112,4 +133,4 @@ def driver_logueado(driver):
     logger.info("LOGIN EN FIXTURE driver_logueado EXITOSO")
     logger.info("========== FIN FIXTURE driver_logueado ==========")
 
-    return driver
+    yield driver

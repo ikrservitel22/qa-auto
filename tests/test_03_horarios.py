@@ -20,10 +20,10 @@ def test_horarios(driver_logueado):
 
         logger.info("========== INICIO TEST_HORARIOS ==========")
 
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Abriendo módulo de horarios")
         driver_logueado.find_element(

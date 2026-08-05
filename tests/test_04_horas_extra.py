@@ -20,10 +20,10 @@ def test_ver_horas_extra(driver_logueado):
     try:
 
         logger.info("========== INICIO TEST_VER_HORAS_EXTRA ==========")
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Abriendo módulo de horas extra")
         driver_logueado.find_element(
@@ -192,10 +192,10 @@ def test_btones_horas_extra(driver_logueado):
     try:
 
         logger.info("========== INICIO TEST_BTONES_HORAS_EXTRA ==========")
-        driver_logueado.find_element(
-            By.XPATH,
-            SIDEBAR_BOTON
-        ).click()
+        # driver_logueado.find_element(
+        #     By.XPATH,
+        #     SIDEBAR_BOTON
+        # ).click()
 
         logger.info("Abriendo módulo de horas extra")
         driver_logueado.find_element(
