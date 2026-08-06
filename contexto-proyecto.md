@@ -135,6 +135,18 @@ Estos cambios están reflejados en los archivos del workspace y se han resumido 
 - Los logs se guardan en `reports/logs/`.
 - Las descargas van en `descargas/`.
 
+## Convenciones añadidas (implementadas)
+
+- **Nombres de tests y logs:** Los nombres de test se registran automáticamente en los logs usando el nombre del nodo de pytest (`request.node.name`). No es necesario mantener mensajes de inicio/fin manuales dentro de cada test.
+- **Selectores:** Todos los XPATHs se centralizan en `utili/locators.py`. Evitar XPATHs inline en los tests nuevos.
+- **Timeouts y rutas:** `utili/config.py` expone `TIMEOUT`, `REPORTS_DIR`, `LOGS_DIR`, `SCREEN_DIR` y `DOWNLOADS_DIR`. Usar estas constantes para esperas y rutas.
+- **Waits compartidos:** Se añadió `utili/waits.py` con helpers `wait_visible_xpath`, `click_when_clickable` y `send_keys_when_visible` para estandarizar esperas y reducir `time.sleep`.
+- **Login robusto:** La fixture `driver_logueado` ahora usa esperas explícitas antes de interactuar con los campos de login y espera la URL del dashboard con `TIMEOUT`.
+- **Limpieza de artefactos:** Al inicio de la sesión se limpian `reports/screen/` y `descargas/` (esta última al crear el `driver`).
+- **Dependencias:** Se fijaron versiones en `requirements.txt` para mejorar reproducibilidad.
+
+Si quieres que aplique estas convenciones a todos los tests existentes (mover XPATHs y reemplazar llamadas), lo hago por lotes empezando por los tests que más fallan. ¿Por cuál empiezo? (recomiendo `tests/test_01_login.py` y `tests/test_04_horas_extra.py`).
+
 ## Cómo responder
 
 Cuando se solicite código:

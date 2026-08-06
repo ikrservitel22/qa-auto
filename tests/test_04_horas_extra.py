@@ -13,6 +13,7 @@ from utili.config import *
 from utili.locators import *
 from utili.logger import logger
 from utili.errores import tipificar_error
+from utili.waits import click_when_clickable, wait_visible_xpath, send_keys_when_visible
 
 timeout = 10  # Tiempo de espera en segundos para WebDriverWait
 
@@ -26,32 +27,19 @@ def test_ver_horas_extra(driver_logueado):
         # ).click()
 
         logger.info("Abriendo módulo de horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[5]/button'
-        ).click()
+        click_when_clickable(driver_logueado, SIDEBAR_HORAS_BUTTON)
 
         logger.info("Abriendo ver horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[5]/div/a[1]'
-        ).click()
+        click_when_clickable(driver_logueado, MENU_HORAS_VER)
 
         logger.info("Esperando que cargue la página Horas extra")
-        WebDriverWait(driver_logueado, timeout).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, "//*[contains(normalize-space(.), 'Horas extra')]")
-            )
-        )
+        wait_visible_xpath(driver_logueado, HORAS_PAGE_TITLE)
 
         logger.info("presionar boton registar horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div/div[2]/div/div/div/div/div[1]/a'
-        ).click()
+        click_when_clickable(driver_logueado, HORAS_REGISTRAR_BUTTON)
 
         logger.info("Esperando que cargue registrar Horas extra")
-        WebDriverWait(driver_logueado, timeout).until(
+        WebDriverWait(driver_logueado, TIMEOUT).until(
             lambda driver: "/horas-extras/create" in driver.current_url
         )
 
@@ -198,30 +186,16 @@ def test_btones_horas_extra(driver_logueado):
         # ).click()
 
         logger.info("Abriendo módulo de horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[5]/button'
-        ).click()
+        click_when_clickable(driver_logueado, SIDEBAR_HORAS_BUTTON)
 
         logger.info("Abriendo ver horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[5]/div/a[1]'
-        ).click()
+        click_when_clickable(driver_logueado, MENU_HORAS_VER)
 
         logger.info("presinando el botón de previsualizar horas extra")
-        #previsualizar
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="tabla-extras"]/tbody/tr[1]/td[8]/div/button'
-        ).click()
+        click_when_clickable(driver_logueado, TABLA_EXTRAS_PREVIEW_BUTTON)
 
         logger.info("Esperando que aparezca el modal de previsualización")
-        WebDriverWait(driver_logueado, timeout).until(
-            EC.presence_of_element_located(
-                (By.XPATH, '/html/body/div[2]/div')
-            )
-        )
+        wait_visible_xpath(driver_logueado, MODAL_PREVIEW_XPATH)
 
         logger.info("MODAL DE PREVISUALIZACIÓN VISIBLE")
         logger.info("========== FIN TEST_BTONES_HORAS_EXTRA ==========\n")

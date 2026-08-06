@@ -19,3 +19,25 @@ BOTON_ACEPTAR = '/html/body/div[2]/div/div[6]/button[1]'  ##botón de aceptar ca
 
 BOTON_CREAR_NOVEDAD = '//*[@id="sidebarNav"]/div[2]/div/a[2]'  ##botón de crear novedad
 
+# Horas extra
+SIDEBAR_HORAS_BUTTON = '//*[@id="sidebarNav"]/div[5]/button'
+MENU_HORAS_VER = '//*[@id="sidebarNav"]/div[5]/div/a[1]'
+MENU_HORAS_CREAR = '//*[@id="sidebarNav"]/div[5]/div/a[2]'
+HORAS_PAGE_TITLE = "//*[contains(normalize-space(.), 'Horas extra')]"
+HORAS_REGISTRAR_BUTTON = '/html/body/div/div[2]/div/div/div/div/div[1]/a'
+
+# Formulario crear horas extra
+HEX_FECHA_INICIO = '//*[@id="hex_fecha_inicio"]'
+HEX_HORA_INICIO = '//*[@id="hex_hora_inicio"]'
+HEX_FECHA_FIN = '//*[@id="hex_fecha_fin"]'
+HEX_HORA_FIN = '//*[@id="hex_hora_fin"]'
+HEX_RAZON_INPUT = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[5]/input'
+HEX_JUSTIF_TEXTAREA = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[6]/textarea'
+HEX_GUARDAR_BUTTON = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[8]/button'
+HORAS_SUCCESS_MSG = '/html/body/div[2]/div'
+HORAS_SUCCESS_CLOSE = '/html/body/div[2]/div/div[6]/button[1]'
+
+# Tabla y modal
+TABLA_EXTRAS_PREVIEW_BUTTON = '//*[@id="tabla-extras"]/tbody/tr[1]/td[8]/div/button'
+MODAL_PREVIEW_XPATH = '/html/body/div[2]/div'
+

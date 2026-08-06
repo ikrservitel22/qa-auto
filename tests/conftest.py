@@ -18,6 +18,7 @@ from selenium.webdriver.chrome.options import Options
 @pytest.fixture(scope="session", autouse=True)
 def reset_logger():
     os.makedirs("/workspace/reports/logs", exist_ok=True)
+    os.makedirs("/workspace/reports/screen", exist_ok=True)
 
     for handler in list(logger.handlers):
         logger.removeHandler(handler)
@@ -36,11 +37,26 @@ def reset_logger():
     archivo.setFormatter(formato)
     logger.addHandler(archivo)
 
+    # limpiar capturas previas
+    for archivo_scr in glob.glob("/workspace/reports/screen/*"):
+        try:
+            os.remove(archivo_scr)
+        except Exception:
+            pass
+
     yield
 
     for handler in list(logger.handlers):
         logger.removeHandler(handler)
         handler.close()
+
+
+@pytest.fixture(autouse=True)
+def log_test_name(request):
+    nombre = request.node.name
+    logger.info(f"========== INICIO {nombre} ==========")
+    yield
+    logger.info(f"========== FIN {nombre} ==========\n")
 
 @pytest.fixture
 def driver():
@@ -102,37 +118,30 @@ def driver():
 
 @pytest.fixture
 def driver_logueado(driver):
-
-    logger.info("========== INICIO TEST ==========")
-
     logger.info(f"URL: {URL}")
     logger.info(f"USUARIO: {USUARIO}")
 
-    logger.info("Escribiendo usuario")
-    driver.find_element(
-        By.XPATH,
-        LOGIN_USUARIO
-    ).send_keys(USUARIO)
+    # Esperar elementos de login
+    WebDriverWait(driver, TIMEOUT).until(
+        EC.presence_of_element_located((By.XPATH, LOGIN_USUARIO))
+    )
+    driver.find_element(By.XPATH, LOGIN_USUARIO).send_keys(USUARIO)
 
-    logger.info("Escribiendo contraseña")
-    driver.find_element(
-        By.XPATH,
-        LOGIN_PASSWORD
-    ).send_keys(PASSWORD)
+    WebDriverWait(driver, TIMEOUT).until(
+        EC.presence_of_element_located((By.XPATH, LOGIN_PASSWORD))
+    )
+    driver.find_element(By.XPATH, LOGIN_PASSWORD).send_keys(PASSWORD)
 
-    logger.info("Pulsando botón Ingresar")
-    driver.find_element(
-        By.XPATH,
-        LOGIN_BOTON
-    ).click()
+    WebDriverWait(driver, TIMEOUT).until(
+        EC.element_to_be_clickable((By.XPATH, LOGIN_BOTON))
+    )
+    driver.find_element(By.XPATH, LOGIN_BOTON).click()
 
-    logger.info("Esperando Dashboard")
-    WebDriverWait(driver, 5).until(
+    WebDriverWait(driver, TIMEOUT).until(
         EC.url_contains("dashboard")
     )
 
     logger.info(f"URL actual: {driver.current_url}")
     logger.info("LOGIN EN FIXTURE driver_logueado EXITOSO")
-    logger.info("========== FIN FIXTURE driver_logueado ==========")
 
     yield driver
