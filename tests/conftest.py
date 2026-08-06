@@ -72,6 +72,8 @@ def driver():
         "profile.password_manager_enabled": False
     }
 
+    options.add_argument("--disable-features=FileSystemAccessAPI")
+    
     options.add_experimental_option("prefs", prefs)
 
     # Abrir Chrome maximizado

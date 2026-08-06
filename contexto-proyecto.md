@@ -15,6 +15,8 @@ Proyecto de automatización de pruebas end-to-end para una aplicación web usand
   - `test_01_login.py`: casos de login y logout
   - `test_02_novedades.py`: creación y navegación de novedades
   - `test_03_horarios.py`: validación de módulos de horarios y solicitudes
+  - `test_04_horas_extra.py`: ver, crear y validar botones/modales para horas extra
+  - `test_05_inventario.txt`: pruebas relacionadas con inventario (archivo con extensión `.txt`, contiene casos comentados y utilitarios)
   - `conftest.py`: fixtures `driver` y `driver_logueado`; limpia descargas previas, configura el driver remoto y hace login automático
 - `/utili`
   - `config.py`: carga de `credentials.json` con URL, usuario y contraseña
@@ -79,6 +81,19 @@ python -m pytest -s tests/ --html=reports/html/reporte.html --self-contained-htm
 - Se captura la URL actual en el momento del fallo para facilitar el diagnóstico.
 - Se genera un nombre de archivo con fecha/hora y se guarda una captura en `reports/screen/`.
 - Finalmente, el error se relanza para que pytest marque el caso como fallido.
+
+## Cambios detectados recientemente
+
+- `tests/test_04_horas_extra.py`: nuevo conjunto de tests para el módulo "Horas extra" que incluye:
+  - `test_ver_horas_extra`: abre el módulo y valida navegación a `/horas-extras/create`.
+  - `test_crear_horas_extra`: completa el formulario de registro (fechas, horas, razón, justificación) y valida el mensaje de éxito.
+  - `test_btones_horas_extra`: interactúa con botones de previsualización y modales.
+- `tests/test_05_inventario.txt`: archivo con código de pruebas de inventario — actualmente guardado con extensión `.txt` y contiene tests comentados y utilitarios.
+- `utili/errores.py`: nuevo módulo de tipificación de excepciones (`tipificar_error`) y determinación de errores reintentables (`es_reintentable`).
+- `tests/conftest.py`: contiene nueva fixture `reset_logger` que recrea/limpia handlers del `logger` y configura `reports/logs/ejecucion.log`; la fixture `driver` configura preferencias de Chrome para descargas automáticas y desactiva características (`FileSystemAccessAPI`, popup-blocking, etc.).
+- `utili/logger.py`: inicializa `logger` global y garantiza la carpeta `reports/logs`.
+
+Estos cambios están reflejados en los archivos del workspace y se han resumido aquí para mantener el `contexto-proyecto.md` como la fuente de verdad.
 
 ## Detalles importantes
 

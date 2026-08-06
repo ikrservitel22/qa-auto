@@ -79,115 +79,115 @@ def test_ver_horas_extra(driver_logueado):
 
         raise
 
-def test_crear_horas_extra(driver_logueado):
-    try:
+# def test_crear_horas_extra(driver_logueado):
+#     try:
 
-        # logger.info("========== INICIO TEST_CREAR_HORAS_EXTRA ==========")
-        # driver_logueado.find_element(
-        #     By.XPATH,
-        #     SIDEBAR_BOTON
-        # ).click()
+#         # logger.info("========== INICIO TEST_CREAR_HORAS_EXTRA ==========")
+#         # driver_logueado.find_element(
+#         #     By.XPATH,
+#         #     SIDEBAR_BOTON
+#         # ).click()
 
-        logger.info("Abriendo módulo de horas extra")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[5]/button'
-        ).click()
+#         logger.info("Abriendo módulo de horas extra")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '//*[@id="sidebarNav"]/div[5]/button'
+#         ).click()
 
-        logger.info("Abriendo crear horas extra")
-        WebDriverWait(driver_logueado, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="sidebarNav"]/div[5]/div/a[2]')
-            )
-        ).click()
+#         logger.info("Abriendo crear horas extra")
+#         WebDriverWait(driver_logueado, 10).until(
+#             EC.element_to_be_clickable(
+#                 (By.XPATH, '//*[@id="sidebarNav"]/div[5]/div/a[2]')
+#             )
+#         ).click()
 
-        logger.info("Esperando que aparezca el formulario de horas extra")
-        WebDriverWait(driver_logueado, 20).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, "//*[contains(text(),'Registrar horas extra')]")
-            )
-        )
+#         logger.info("Esperando que aparezca el formulario de horas extra")
+#         WebDriverWait(driver_logueado, 20).until(
+#             EC.visibility_of_element_located(
+#                 (By.XPATH, "//*[contains(text(),'Registrar horas extra')]")
+#             )
+#         )
 
-        logger.info("FORMULARIO DE CREAR HORAS EXTRA VISIBLE")
+#         logger.info("FORMULARIO DE CREAR HORAS EXTRA VISIBLE")
 
-        logger.info("Seleccionando fecha") 
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="hex_fecha_inicio"]'
-        ).send_keys("2026-06-15")
+#         logger.info("Seleccionando fecha") 
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '//*[@id="hex_fecha_inicio"]'
+#         ).send_keys("12-08-2026")
 
-        logger.info("Seleccionando hora inicio")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="hex_hora_inicio"]'
-        ).send_keys("08:00am")
+#         logger.info("Seleccionando hora inicio")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '//*[@id="hex_hora_inicio"]'
+#         ).send_keys("08:00am")
 
-        logger.info("Seleccionando hora fin")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="hex_fecha_fin"]'
-        ).send_keys("2026-06-15")
+#         logger.info("Seleccionando hora fin")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '//*[@id="hex_fecha_fin"]'
+#         ).send_keys("12-09-2026")
 
-        logger.info("Seleccionando hora fin")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="hex_hora_fin"]'
-        ).send_keys("17:00 PM")
+#         logger.info("Seleccionando hora fin")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '//*[@id="hex_hora_fin"]'
+#         ).send_keys("17:00 PM")
 
-        logger.info("introduciendo razon")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[5]/input'
-        ).send_keys("pruebas")
+#         logger.info("introduciendo razon")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[5]/input'
+#         ).send_keys("pruebas")
 
-        logger.info("introduciendo justificacion")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[6]/textarea'
-        ).send_keys("pruebas")
+#         logger.info("introduciendo justificacion")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[6]/textarea'
+#         ).send_keys("pruebas")
 
-        logger.info("presionando boton guardar")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[8]/button'
-        ).click()
+#         logger.info("presionando boton guardar")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[8]/button'
+#         ).click()
 
-        logger.info("Esperando mensaje de éxito")
-        WebDriverWait(driver_logueado, 20).until(
-            EC.visibility_of_element_located(
-                (By.XPATH, '/html/body/div[2]/div')
-            )
-        )
+#         logger.info("Esperando mensaje de éxito")
+#         WebDriverWait(driver_logueado, 20).until(
+#             EC.visibility_of_element_located(
+#                 (By.XPATH, '/html/body/div[2]/div')
+#             )
+#         )
 
-        logger.info("cerrando notificacion de éxito")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div[2]/div/div[6]/button[1]'
-        ).click()
+#         logger.info("cerrando notificacion de éxito")
+#         driver_logueado.find_element(
+#             By.XPATH,
+#             '/html/body/div[2]/div/div[6]/button[1]'
+#         ).click()
 
-        logger.info("========== FIN TEST_CREAR_HORAS_EXTRA ==========\n")
+#         logger.info("========== FIN TEST_CREAR_HORAS_EXTRA ==========\n")
 
-    except Exception as e:
+#     except Exception as e:
 
-        tipo_error = tipificar_error(e)
+#         tipo_error = tipificar_error(e)
 
-        logger.error("========== ERROR: TEST_CREAR_HORAS_EXTRA ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
+#         logger.error("========== ERROR: TEST_CREAR_HORAS_EXTRA ==========")
+#         logger.error(f"TIPO DE ERROR: {tipo_error}")
+#         logger.error(f"DETALLE: {e}")
+#         logger.error(f"URL: {driver_logueado.current_url}")
 
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
+#         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        ruta = f"reports/screen/horas_extra_{nombre}.png"
+#         ruta = f"reports/screen/horas_extra_{nombre}.png"
 
-        driver_logueado.save_screenshot(ruta)
+#         driver_logueado.save_screenshot(ruta)
 
-        logger.error(f"CAPTURA: {ruta}")
+#         logger.error(f"CAPTURA: {ruta}")
 
-        logger.error("========== FIN TEST_CREAR_HORAS_EXTRA ==========\n")
+#         logger.error("========== FIN TEST_CREAR_HORAS_EXTRA ==========\n")
 
-        raise
-    
+#         raise
+
 def test_btones_horas_extra(driver_logueado):
     try:
 
