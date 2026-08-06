@@ -7,6 +7,7 @@ from utili.config import *
 from utili.locators import *
 from utili.logger import logger
 from utili.errores import tipificar_error
+from utili.waits import send_keys_when_visible, click_when_clickable, wait_visible_xpath
 
 
 def test_login(driver):
@@ -19,28 +20,16 @@ def test_login(driver):
         logger.info(f"USUARIO: {USUARIO}")
 
         logger.info("Escribiendo usuario")
-        driver.find_element(
-            By.XPATH,
-            LOGIN_USUARIO
-        ).send_keys(USUARIO)
+        send_keys_when_visible(driver, LOGIN_USUARIO, USUARIO)
 
         logger.info("Escribiendo contraseña")
-        driver.find_element(
-            By.XPATH,
-            LOGIN_PASSWORD
-        ).send_keys(PASSWORD)
+        send_keys_when_visible(driver, LOGIN_PASSWORD, PASSWORD)
 
         logger.info("Pulsando botón Ingresar")
-        driver.find_element(
-            By.XPATH,
-            LOGIN_BOTON
-        ).click()
+        click_when_clickable(driver, LOGIN_BOTON)
 
         logger.info("Esperando Dashboard")
-
-        WebDriverWait(driver, 5).until(
-            EC.url_contains("dashboard")
-        )
+        wait_visible_xpath(driver, "//*[contains(normalize-space(.), 'dashboard')]")
 
         logger.info(f"URL actual: {driver.current_url}")
 
@@ -85,14 +74,10 @@ def test_logout(driver_logueado):
 
         logger.info("Pulsando Cerrar sesión")
 
-        driver_logueado.find_element(
-            By.XPATH,
-            LOGOUT_BOTON
-        ).click()
+        click_when_clickable(driver_logueado, LOGOUT_BOTON)
 
         logger.info("Esperando regresar al Login")
-
-        WebDriverWait(driver_logueado, 5).until(
+        WebDriverWait(driver_logueado, TIMEOUT).until(
             lambda d: d.current_url == URL
         )
 

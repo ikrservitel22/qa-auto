@@ -135,6 +135,25 @@ Estos cambios están reflejados en los archivos del workspace y se han resumido 
 - Los logs se guardan en `reports/logs/`.
 - Las descargas van en `descargas/`.
 
+## Convenciones de nombres para localizadores
+
+- Los nombres de constantes deben estar en mayúsculas y usar guiones bajos.
+- Usar prefijos según el tipo de elemento:
+  - `SIDEBAR_<MODULO>_BUTTON` para el botón principal del módulo en la barra lateral.
+  - `MENU_<MODULO>_<OPCION>` para entradas de menú o submenú.
+  - `<MODULO>_PAGE_TITLE` para títulos de página.
+  - `<MODULO>_FORM_<CAMPO>_<TIPO>` para campos de formulario, por ejemplo `INV_FORM_PRODUCT_INPUT`.
+  - `<MODULO>_<ACTION>_BUTTON` para botones de acción.
+  - `TABLA_<MODULO>_...` para tablas y acciones de tabla.
+- Evitar sufijos ambiguos como `_ALT` en los nombres de localizadores.
+- Para inventario, usar:
+  - `MENU_INVENTARIO_NUEVO_ARTICULO` para la opción del menú.
+  - `INVENTARIO_NUEVO_ARTICULO_HEADER_BUTTON` para el botón de nuevo artículo dentro de la página.
+  - `INVENTARIO_NUEVO_ARTICULO_TITLE` para el título del formulario.
+  - `INV_FORM_*` para los campos del formulario.
+- Para novedades, usar `MENU_NOVEDADES_NUEVA` para la opción de crear una novedad y `MENU_NOVEDADES_VER` para ver novedades.
+- Mantener la misma estructura de nombre en todo el proyecto para facilitar el mantenimiento.
+
 ## Convenciones añadidas (implementadas)
 
 - **Nombres de tests y logs:** Los nombres de test se registran automáticamente en los logs usando el nombre del nodo de pytest (`request.node.name`). No es necesario mantener mensajes de inicio/fin manuales dentro de cada test.
@@ -166,4 +185,63 @@ Cuando se solicite código:
 - No refactorizar código existente.
 - No optimizar código si no fue solicitado.
 - No reemplazar XPATH por CSS Selectors sin autorización.
+
+## Plantilla recomendada para nuevos tests
+
+Usa esta plantilla como base cuando pidas crear un nuevo test: tú me das el flujo (acciones y XPATHs/constantes en `utili/locators.py`) y yo devuelvo el archivo listo.
+
+- Requisitos:
+  - Importar fixtures `driver` o `driver_logueado` según necesites sesión autenticada.
+  - Usar los helpers de `utili/waits.py` (ej.: `click_when_clickable`, `wait_visible_xpath`, `wait_text_present`).
+  - Registrar con `logger` las acciones principales.
+  - Envolver flujo principal en `try/except` para capturar pantalla, log y relanzar.
+
+Ejemplo (cambia nombres y XPATHs según el caso):
+
+```py
+from selenium.webdriver.common.by import By
+from datetime import datetime
+import time
+
+from utili.config import *
+from utili.locators import *
+from utili.logger import logger
+from utili.errores import tipificar_error
+from utili.waits import click_when_clickable, wait_visible_xpath, wait_text_present
+
+def test_mi_nuevo_flujo(driver_logueado):
+    try:
+        logger.info("========== INICIO test_mi_nuevo_flujo ==========")
+
+        # Ejemplo de navegación: abrir módulo
+        click_when_clickable(driver_logueado, SIDEBAR_MI_MODULO)
+        click_when_clickable(driver_logueado, MENU_MI_OPCION)
+
+        # Esperar un título de página usando locators centralizados
+        wait_visible_xpath(driver_logueado, MI_MODULO_PAGE_TITLE)
+
+        # Ejecutar la acción principal (usa locators desde utili/locators.py)
+        click_when_clickable(driver_logueado, MI_BOTON_ACCION)
+
+        # Validación: esperar texto o elemento que confirme la acción
+        wait_text_present(driver_logueado, "Texto esperado")
+
+        logger.info("Acción completada correctamente")
+        logger.info("========== FIN test_mi_nuevo_flujo ==========")
+
+    except Exception as e:
+        tipo_error = tipificar_error(e)
+        logger.exception(f"ERROR EN test_mi_nuevo_flujo: {e}")
+        logger.info(f"URL al fallar: {driver_logueado.current_url}")
+        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
+        driver_logueado.save_screenshot(f"reports/screen/mi_nuevo_flujo_{nombre}.png")
+        raise
+```
+
+Notas de uso:
+- No incluyas XPATHs literales en el test: define constantes en `utili/locators.py` y referencia esas constantes.
+- Si el flujo descarga archivos, valida la descarga comprobando `/workspace/descargas` o usando `utili/downloads.py`.
+- Para operaciones que abren nuevas pestañas o modales, usar los helpers y controles de `window_handles` y esperar por texto en la página completa (`wait_text_in_page`).
+
+Si quieres, añado esta plantilla como un archivo ejemplo en `/workspace/tests/template_test_example.py`.
 

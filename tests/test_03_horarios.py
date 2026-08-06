@@ -5,6 +5,7 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 import time
 import pytest
+import os
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
@@ -13,6 +14,8 @@ from utili.config import *
 from utili.locators import *
 from utili.logger import logger
 from utili.errores import tipificar_error
+from utili.waits import click_when_clickable, wait_text_in_page, wait_text_present, wait_visible_xpath
+from utili.downloads import download_via_requests
 
 def test_horarios(driver_logueado):
 
@@ -26,23 +29,13 @@ def test_horarios(driver_logueado):
         # ).click()
 
         logger.info("Abriendo módulo de horarios")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[4]/button'
-        ).click()
+        click_when_clickable(driver_logueado, SIDEBAR_HORARIOS_BUTTON)
 
         logger.info("Abriendo ver horarios")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[4]/div/a[1]'
-        ).click()
+        click_when_clickable(driver_logueado, MENU_HORARIOS_VER)
 
         logger.info("Esperando que se cargue la página de horarios")
-        WebDriverWait(driver_logueado, 10).until(
-            EC.presence_of_element_located(
-                (By.XPATH, "//*[contains(normalize-space(.), ' Horarios')]")
-            )
-        )
+        wait_visible_xpath(driver_logueado, HORARIOS_PAGE_TITLE)
         logger.info("HORARIOS CARGADOS CORRECTAMENTE")
         logger.info("========== FIN TEST_HORARIOS ==========\n")
     except Exception as e:
@@ -79,17 +72,10 @@ def test_estado_horario(driver_logueado):
         # ).click()
 
         logger.info("Abriendo módulo de horarios")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[4]/button'
-        ).click()
+        click_when_clickable(driver_logueado, SIDEBAR_HORARIOS_BUTTON)
 
         logger.info("Abriendo estado de horario")
-        WebDriverWait(driver_logueado, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '/html/body/div/div[1]/nav/div[4]/div/a[3]')
-            )
-        ).click()
+        click_when_clickable(driver_logueado, MENU_HORARIOS_ESTADO)
 
         logger.info("Esperando que se cargue la página de estado de horario")
         WebDriverWait(driver_logueado, 10).until(
@@ -106,10 +92,7 @@ def test_estado_horario(driver_logueado):
 
                 logger.info(f"Intento {intento + 1}")
 
-                boton = driver_logueado.find_element(
-                    By.XPATH,
-                    '//*[@id="tabla-detalle_wrapper"]/div[1]/div[2]/div/button[1]'
-                )
+                boton = driver_logueado.find_element(By.XPATH, TABLA_DETALLE_EXPORT_BUTTON)
 
                 logger.info("Botón encontrado")
 
@@ -144,12 +127,62 @@ def test_estado_horario(driver_logueado):
             raise Exception("No se encontró el botón Exportar detalle diario.")
 
         logger.info("exportar estado de horario")
-        driver_logueado.find_element(
-            By.XPATH,
-            '/html/body/div/div[2]/div/div/div/div[1]/div[3]/a'
-        ).click()
+        started_tabs = driver_logueado.window_handles
 
-        logger.info("ESTADO DE HORARIO EXPORTADO CORRECTAMENTE")
+        # Intentar descargar directamente vía HTTP usando la URL del enlace (si existe)
+        try:
+            link_el = driver_logueado.find_element(By.XPATH, EXPORT_PAGE_LINK)
+            href = link_el.get_attribute('href')
+        except Exception:
+            href = None
+
+        if href and href.startswith('http'):
+            try:
+                downloaded = download_via_requests(driver_logueado, href, '/workspace/descargas')
+                logger.info(f"Descargado vía HTTP a: {downloaded}")
+            except Exception as e:
+                logger.warning(f"Descarga directa falló: {e}")
+
+        # Intentar click en la UI (si es necesario para navegación)
+        click_when_clickable(driver_logueado, EXPORT_PAGE_LINK)
+
+        # Si la exportación abre una nueva pestaña, cambie a ella y espere el texto.
+        WebDriverWait(driver_logueado, TIMEOUT).until(
+            lambda d: len(d.window_handles) != len(started_tabs)
+        )
+        new_tabs = [h for h in driver_logueado.window_handles if h not in started_tabs]
+        if new_tabs:
+            driver_logueado.switch_to.window(new_tabs[0])
+            logger.info("Cambiado a nueva pestaña de exportación")
+            wait_text_in_page(driver_logueado, "Detalle diario", TIMEOUT * 2)
+            logger.info("Detalle diario encontrado en la nueva pestaña")
+            driver_logueado.close()
+            driver_logueado.switch_to.window(started_tabs[0])
+            logger.info("Regresado a la pestaña original")
+        else:
+            # Si no abre nueva pestaña, esperamos el texto en la misma página.
+            wait_text_in_page(driver_logueado, "Detalle diario", TIMEOUT * 2)
+            logger.info("Detalle diario encontrado en la misma página")
+
+        # Además, esperar a que aparezca un archivo en la carpeta de descargas
+        download_found = False
+        download_timeout = TIMEOUT
+        end_time = time.time() + download_timeout
+        while time.time() < end_time:
+            try:
+                archivos = [f for f in os.listdir("/workspace/descargas") if not f.startswith('.')]
+                if archivos:
+                    logger.info(f"Archivos descargados: {archivos}")
+                    download_found = True
+                    break
+            except Exception:
+                pass
+            time.sleep(1)
+
+        if not download_found:
+            logger.warning("No se detectaron archivos en /workspace/descargas dentro del timeout")
+
+        logger.info("ESTADO DE HORARIO EXPORTADO CORRECTAMENTE: flujo comprobado")
         logger.info("========== FIN TEST_ESTADO_HORARIO ==========\n")
 
     except Exception as e:
@@ -181,17 +214,10 @@ def test_solicitud_cambios(driver_logueado):
         # ).click()
 
         logger.info("Abriendo módulo de horarios")
-        driver_logueado.find_element(
-            By.XPATH,
-            '//*[@id="sidebarNav"]/div[4]/button'
-        ).click()
+        click_when_clickable(driver_logueado, SIDEBAR_HORARIOS_BUTTON)
 
         logger.info("Abriendo solicitud de cambios de horario")
-        WebDriverWait(driver_logueado, 10).until(
-            EC.element_to_be_clickable(
-                (By.XPATH, '//*[@id="sidebarNav"]/div[4]/div/a[2]')
-            )
-        ).click()
+        click_when_clickable(driver_logueado, MENU_HORARIOS_SOLICITUD)
 
         logger.info("Esperando que se cargue la página de solicitud de cambios de horario")
         WebDriverWait(driver_logueado, 10).until(

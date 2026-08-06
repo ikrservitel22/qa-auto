@@ -11,8 +11,6 @@ from datetime import datetime
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
-from selenium.webdriver.chrome.options import Options
-
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -51,45 +49,46 @@ def reset_logger():
         handler.close()
 
 
-@pytest.fixture(autouse=True)
-def log_test_name(request):
-    nombre = request.node.name
-    logger.info(f"========== INICIO {nombre} ==========")
-    yield
-    logger.info(f"========== FIN {nombre} ==========\n")
-
 @pytest.fixture
 def driver():
+    # Host directory where test runner expects downloads to appear
+    host_download_dir = "/workspace/descargas"
+    os.makedirs(host_download_dir, exist_ok=True)
 
-    # Crear la carpeta si no existe
-    os.makedirs("/workspace/descargas", exist_ok=True)
+    # Clean previous downloads on the host side
+    for archivo in glob.glob(f"{host_download_dir}/*"):
+        try:
+            os.remove(archivo)
+        except Exception:
+            pass
 
-    # Eliminar archivos de descargas anteriores
-    for archivo in glob.glob("/workspace/descargas/*"):
-        os.remove(archivo)
-
-    
+    # Path inside the Selenium/browser container where Chrome will actually write downloads.
+    # IMPORTANT: you must bind-mount the host `host_download_dir` to this container path
+    # when launching the Selenium node (example below).
+    container_download_dir = os.environ.get("SELENIUM_CONTAINER_DOWNLOAD_DIR", "/home/seluser/descargas")
 
     options = Options()
 
     prefs = {
-        # Carpeta donde se guardarán las descargas
-        "download.default_directory": "/workspace/descargas",
+        # Path inside the browser container
+        "download.default_directory": container_download_dir,
         # No preguntar dónde guardar
         "download.prompt_for_download": False,
         # Crear/usar la carpeta automáticamente
         "download.directory_upgrade": True,
-        # No mostrar advertencias de archivos descargados
-        "safebrowsing.enabled": True,
-        # No abrir el PDF en el navegador
+        # Evitar que Chrome intente abrir ciertos tipos (ej. PDF)
         "plugins.always_open_pdf_externally": True,
-            # Desactivar guardar contraseñas
+        # Evitar popup de descargas
+        "profile.default_content_settings.popups": 0,
+        # Relajar protecciones de safebrowsing para permitir descargas automáticas en CI
+        "safebrowsing.enabled": True,
+        "safebrowsing.disable_download_protection": True,
+        # Desactivar servicios que guardan credenciales
         "credentials_enable_service": False,
         "profile.password_manager_enabled": False
     }
 
     options.add_argument("--disable-features=FileSystemAccessAPI")
-    
     options.add_experimental_option("prefs", prefs)
 
     # Abrir Chrome maximizado
@@ -110,11 +109,29 @@ def driver():
         options=options
     )
 
+    # Forzar comportamiento de descargas vía CDP para Chromedriver/Chrome
+    # Esto le indica al navegador la carpeta donde escribir descargas sin mostrar diálogos.
+    try:
+        driver.execute_cdp_cmd("Page.setDownloadBehavior", {
+            "behavior": "allow",
+            "downloadPath": container_download_dir
+        })
+    except Exception:
+        # Algunos drivers/remotes pueden no soportar CDP; en ese caso las prefs ayudan.
+        pass
+
     driver.get(URL)
+
+    # Nota para el usuario: asegúrate de montar la carpeta del host en el contenedor
+    # por ejemplo, en `docker run` o `docker-compose` del nodo Chrome:
+    # -v /workspace/descargas:/home/seluser/descargas
+    # Si usas otra ruta dentro del contenedor cambia la variable de entorno
+    # `SELENIUM_CONTAINER_DOWNLOAD_DIR` para que coincida.
 
     yield driver
 
     driver.quit()
+
 
 @pytest.fixture
 def driver_logueado(driver):
