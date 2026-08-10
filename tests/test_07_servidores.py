@@ -13,6 +13,7 @@ from utili.locators import (
 from utili.errores import tipificar_error
 from utili.waits import (
     click_when_clickable,
+    wait_for_url,
     wait_text_in_element,
 )
 
@@ -33,12 +34,10 @@ def test_servidores_flujo(driver_logueado):
         click_when_clickable(driver_logueado, SERVIDORES_PRIMER_ENLACE)
 
         logger.info("Esperando la URL del servidor específico")
-        WebDriverWait(driver_logueado, TIMEOUT).until(
-            EC.url_to_be('https://intranet.servitel.co/servidores/87')
-        )
+        wait_for_url(driver_logueado, 'https://intranet.servitel.co/servidores/87')
 
         logger.info("Esperando etiqueta de servidor 'ALBOPVAPLCMIALIANZA1'")
-        wait_text_in_element(driver_logueado, '/html/body/div/div[2]/div/div/div/div[1]/div/div/h5', 'ALBOPVAPLCMIALIANZA1')
+        wait_text_in_element(driver_logueado, SERVIDOR_DETAIL_TITLE, 'ALBOPVAPLCMIALIANZA1')
 
         logger.info("TEST_SERVIDORES_FLUJO COMPLETADO")
         logger.info("========== FIN TEST_SERVIDORES_FLUJO ==========")

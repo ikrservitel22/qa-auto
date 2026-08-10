@@ -16,6 +16,9 @@ reports/
 htmlcov/
 .coverage
 
+# Descargas de prueba
+descargas/
+
 # Archivos temporales
 *.log
 *.tmp

@@ -35,6 +35,19 @@ def click_when_clickable(driver, xpath, timeout=None):
     return el
 
 
+def click_sidebar_menu_item(driver, sidebar_button_xpath, menu_item_xpath, timeout=None):
+    """Abre un menú lateral y selecciona una opción del submenú."""
+    click_when_clickable(driver, sidebar_button_xpath, timeout)
+    return click_when_clickable(driver, menu_item_xpath, timeout)
+
+
+def wait_for_url(driver, url, timeout=None):
+    t = timeout or TIMEOUT
+    return WebDriverWait(driver, t).until(
+        EC.url_to_be(url)
+    )
+
+
 def send_keys_when_visible(driver, xpath, text, timeout=None):
     el = wait_visible_xpath(driver, xpath, timeout)
     try:

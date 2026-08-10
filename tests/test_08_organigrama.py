@@ -12,7 +12,7 @@ from utili.locators import (
     MENU_ORGANIGRAMA_MI_AREA,
     ORGANIGRAMA_PAGE_TITLE,
 )
-from utili.waits import click_when_clickable, wait_text_in_element
+from utili.waits import click_sidebar_menu_item, wait_text_in_element
 
 
 def test_organigrama_flujo(driver_logueado):
@@ -22,22 +22,32 @@ def test_organigrama_flujo(driver_logueado):
         logger.info("========== INICIO TEST_ORGANIGRAMA_FLUJO ==========")
 
         logger.info("Click en Organigrama")
-        click_when_clickable(driver_logueado, SIDEBAR_ORGANIGRAMA_BUTTON)
-
         logger.info("Click en Completo")
-        click_when_clickable(driver_logueado, MENU_ORGANIGRAMA_COMPLETO)
+        click_sidebar_menu_item(
+            driver_logueado,
+            SIDEBAR_ORGANIGRAMA_BUTTON,
+            MENU_ORGANIGRAMA_COMPLETO,
+        )
 
         logger.info("Esperando título 'Organigrama'")
         wait_text_in_element(driver_logueado, ORGANIGRAMA_PAGE_TITLE, 'Organigrama')
 
         logger.info("Click en segundo modo de organigrama")
-        click_when_clickable(driver_logueado, MENU_ORGANIGRAMA_AREAS_LIDERES)
+        click_sidebar_menu_item(
+            driver_logueado,
+            SIDEBAR_ORGANIGRAMA_BUTTON,
+            MENU_ORGANIGRAMA_AREAS_LIDERES,
+        )
 
         logger.info("Esperando título 'Áreas y Líderes'")
         wait_text_in_element(driver_logueado, ORGANIGRAMA_PAGE_TITLE, 'Áreas y Líderes')
 
         logger.info("Click en tercer modo de organigrama")
-        click_when_clickable(driver_logueado, MENU_ORGANIGRAMA_MI_AREA)
+        click_sidebar_menu_item(
+            driver_logueado,
+            SIDEBAR_ORGANIGRAMA_BUTTON,
+            MENU_ORGANIGRAMA_MI_AREA,
+        )
 
         logger.info("Esperando título 'Mi Área'")
         wait_text_in_element(driver_logueado, ORGANIGRAMA_PAGE_TITLE, 'Mi Área')
