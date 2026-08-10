@@ -214,7 +214,7 @@ def test_btones_horas_extra(driver_logueado):
         click_when_clickable(driver_logueado, MENU_HORAS_VER)
 
         logger.info("presinando el botón de previsualizar horas extra")
-        click_when_clickable(driver_logueado, HORAS_EXTRA_TABLA_PREVIEW_BUTTON)
+        click_when_clickable(driver_logueado, HORAS_EXTRA_TABLA_PREVIEW_BUTTON)#
 
         logger.info("Esperando que aparezca el modal de previsualización")
         wait_visible_xpath(driver_logueado, HORAS_EXTRA_MODAL_PREVIEW)

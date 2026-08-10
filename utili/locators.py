@@ -6,7 +6,7 @@ SIDEBAR_BOTON = '/html/body/div/div[2]/header/i'  ##botón de barra lateral
 
 MENU_NOVEDADES = '//*[@id="sidebarNav"]/div[2]/button'  ##menú de novedades
 MENU_NOVEDADES_VER = '//*[@id="sidebarNav"]/div[2]/div/a[1]'  ##opción ver novedades
-MENU_NOVEDADES_NUEVA = '/html/body/div/div[2]/div/div/div/div[1]/div[1]/a'  ##opción nueva novedad
+MENU_NOVEDADES_NUEVA = '//*[@id="sidebarNav"]/div[2]/div/a[2]'  ##opción nueva novedad
 NOVEDADES_FORM_TYPE_SELECT = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div/div[2]/span/span[1]/span'  ##select de tipo de novedad
 NOVEDADES_FORM_FECHA_INICIO = '//*[@id="nov_fecha_inicio"]'  ##input de fecha de inicio
 NOVEDADES_FORM_FECHA_FIN = '//*[@id="nov_fecha_fin"]'  ##input de fecha de fin
@@ -36,7 +36,7 @@ HORAS_EXTRA_SUCCESS_MSG = '/html/body/div[2]/div'
 HORAS_EXTRA_SUCCESS_CLOSE = '/html/body/div/div[2]/div/div/div[2]/div/div[6]/button[1]'
 
 # Tabla y modal de horas extra
-HORAS_EXTRA_TABLA_PREVIEW_BUTTON = '//*[@id="tabla-extras"]/tbody/tr[1]/td[8]/div/button'
+HORAS_EXTRA_TABLA_PREVIEW_BUTTON = '//*[@id="DataTables_Table_0"]/tbody/tr[1]/td[8]/div/button'
 HORAS_EXTRA_MODAL_PREVIEW = '/html/body/div[2]/div'
 
 # Novedades - tabla y acciones
