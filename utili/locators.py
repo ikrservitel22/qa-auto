@@ -46,6 +46,28 @@ NOVEDADES_TABLA_MIAS_PREVIEW_THIRD = '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/di
 NOVEDADES_MODAL_DETALLE = '//*[@id="modal-detalle"]/div/div'
 NOVEDADES_BACK_BUTTON = '/html/body/div/div[2]/div/div/div/div/div[1]/a'
 
+# Proyectos
+MENU_PROYECTOS = '//*[@id="sidebarNav"]/a[2]'
+PROYECTOS_ACCION_VER = '/html/body/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[1]/td[7]/a[1]'
+PROYECTOS_ACCION_EDITAR = '/html/body/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[1]/td[7]/a[2]'
+PROYECTOS_EDITAR_VOLVER = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div[7]/a'
+PROYECTOS_NUEVO_BUTTON = '/html/body/div/div[2]/div/div/div/div[1]/a'
+PROYECTOS_PAGE_TITLE = '/html/body/div/div[2]/div/div/div/div[1]/h5'
+PROYECTOS_EDITAR_TITLE = '/html/body/div/div[2]/div/div/div/div/div[1]/h5'
+
+# Servidores
+MENU_SERVIDORES = '//*[@id="sidebarNav"]/a[3]'
+SERVIDORES_PRIMER_ENLACE = '//*[@id="tablaServidores"]/tbody/tr[1]/td[1]/a'
+SERVIDORES_PAGE_TITLE = '/html/body/div/div[2]/div/div/div/div[1]/h5'
+SERVIDOR_DETAIL_TITLE = '/html/body/div/div[2]/div/div/div/div[1]/div/div/h5'
+
+# Organigrama
+SIDEBAR_ORGANIGRAMA_BUTTON = '//*[@id="sidebarNav"]/div[9]/button'
+MENU_ORGANIGRAMA_COMPLETO = '//*[@id="sidebarNav"]/div[9]/div/a[1]'
+MENU_ORGANIGRAMA_AREAS_LIDERES = '//*[@id="sidebarNav"]/div[9]/div/a[2]'
+MENU_ORGANIGRAMA_MI_AREA = '//*[@id="sidebarNav"]/div[9]/div/a[3]'
+ORGANIGRAMA_PAGE_TITLE = '/html/body/div/div[2]/div/div/div/div/div[1]/h5'
+
 # Horarios
 SIDEBAR_HORARIOS_BUTTON = '//*[@id="sidebarNav"]/div[4]/button'
 MENU_HORARIOS_VER = '//*[@id="sidebarNav"]/div[4]/div/a[1]'
