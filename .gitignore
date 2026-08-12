@@ -24,7 +24,7 @@ descargas/
 *.tmp
 
 # Configuración sensible
-credentials.json
+utili/credentials.json
 .env
 
 # IDEs

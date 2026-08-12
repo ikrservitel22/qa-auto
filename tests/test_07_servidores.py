@@ -34,10 +34,10 @@ def test_servidores_flujo(driver_logueado):
         click_when_clickable(driver_logueado, SERVIDORES_PRIMER_ENLACE)
 
         logger.info("Esperando la URL del servidor específico")
-        wait_for_url(driver_logueado, 'https://intranet.servitel.co/servidores/87')
+        wait_for_url(driver_logueado, 'https://intranet.servitel.co/servidores/53')
 
-        logger.info("Esperando etiqueta de servidor 'ALBOPVAPLCMIALIANZA1'")
-        wait_text_in_element(driver_logueado, SERVIDOR_DETAIL_TITLE, 'ALBOPVAPLCMIALIANZA1')
+        logger.info("Esperando etiqueta de servidor 'prueba-gpo'")
+        wait_text_in_element(driver_logueado, SERVIDOR_DETAIL_TITLE, 'prueba-gpo')
 
         logger.info("TEST_SERVIDORES_FLUJO COMPLETADO")
         logger.info("========== FIN TEST_SERVIDORES_FLUJO ==========")
