@@ -2,14 +2,15 @@ from selenium.webdriver.common.by import By
 from datetime import datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-
+import pytest
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
 from utili.errores import tipificar_error
 from utili.waits import send_keys_when_visible, click_when_clickable, wait_visible_xpath
+from utili.screenshot_full import capturar_pantalla_completa
 
-
+@pytest.mark.dependency(name="login_ok", scope="session")
 def test_login(driver):
 
     try:
@@ -58,7 +59,7 @@ def test_login(driver):
 
         raise
 
-
+@pytest.mark.dependency(depends=["login_ok"], scope="session")
 def test_logout(driver_logueado):
 
     try:
@@ -99,7 +100,7 @@ def test_logout(driver_logueado):
 
         nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
 
-        ruta = f"reports/screen/login_{nombre}.png"
+        ruta = f"reports/screen/logout_{nombre}.png"
 
         driver_logueado.save_screenshot(ruta)
 

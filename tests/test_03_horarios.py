@@ -9,6 +9,7 @@ import os
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
+from utili.screenshot_full import capturar_pantalla_completa
 
 from utili.config import *
 from utili.locators import *
@@ -17,6 +18,7 @@ from utili.errores import tipificar_error
 from utili.waits import click_when_clickable, wait_text_in_page, wait_text_present, wait_visible_xpath
 from utili.downloads import download_via_requests
 
+@pytest.mark.dependency(name="modulo_horarios_ok", depends=["login_ok"], scope="session")
 def test_horarios(driver_logueado):
 
     try:
@@ -59,6 +61,7 @@ def test_horarios(driver_logueado):
 
         raise
 
+@pytest.mark.dependency(depends=["modulo_horarios_ok"], scope="session")
 def test_estado_horario(driver_logueado):
 
     try:
@@ -201,6 +204,7 @@ def test_estado_horario(driver_logueado):
 
         raise
 
+@pytest.mark.dependency(depends=["modulo_horarios_ok"], scope="session")
 def test_solicitud_cambios(driver_logueado):
 
     try:
@@ -239,6 +243,7 @@ def test_solicitud_cambios(driver_logueado):
         driver_logueado.save_screenshot(
             f"reports/screen/horarios_{nombre}.png"
         )
+        capturar_pantalla_completa(f"reports/screen/horas_extra_FULL_{nombre}.png")
 
         logger.info(f"Captura guardada: reports/screen/solicitud_cambios_{nombre}.png")
         logger.info("========== FIN TEST_SOLICITUD_CAMBIOS ==========\n")

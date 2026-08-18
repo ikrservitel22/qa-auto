@@ -8,6 +8,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
 
+from utili.screenshot_full import capturar_pantalla_completa
 #importar local
 from utili.config import *
 from utili.locators import *
@@ -17,6 +18,7 @@ from utili.waits import click_when_clickable, wait_visible_xpath, send_keys_when
 
 timeout = 10  # Tiempo de espera en segundos para WebDriverWait
 
+@pytest.mark.dependency(name="modulo_horas_extra_ok", depends=["login_ok"], scope="session")
 def test_ver_horas_extra(driver_logueado):
     try:
 
@@ -62,6 +64,8 @@ def test_ver_horas_extra(driver_logueado):
         driver_logueado.save_screenshot(ruta)
 
         logger.error(f"CAPTURA: {ruta}")
+
+        capturar_pantalla_completa(f"reports/screen/horas_extra_FULL_{nombre}.png")
 
         logger.error("========== FIN TEST_VER_HORAS_EXTRA ==========\n")
 
@@ -198,6 +202,7 @@ def test_ver_horas_extra(driver_logueado):
 
 #         raise
 
+@pytest.mark.dependency(depends=["modulo_horas_extra_ok"], scope="session")
 def test_btones_horas_extra(driver_logueado):
     try:
 

@@ -9,6 +9,7 @@ from selenium.common.exceptions import (
     UnexpectedAlertPresentException,
     WebDriverException,
 )
+from utili.logger import logger
 
 REINTENTABLES = {
     "TIEMPO_ESPERA",
@@ -52,3 +53,40 @@ def tipificar_error(error):
 
 def es_reintentable(tipo_error):
     return tipo_error in REINTENTABLES
+
+def guardar_texto_pagina_error(driver, ruta_txt):
+    """
+    Extrae todo el texto visible de la página actual y lo guarda en un .txt.
+    Útil para páginas de error tipo Laravel/PHP donde el texto es más
+    útil que una captura de pantalla (se puede copiar, buscar, leer fácil).
+    """
+    try:
+        texto = driver.find_element("tag name", "body").text
+        with open(ruta_txt, "w", encoding="utf-8") as f:
+            f.write(f"URL: {driver.current_url}\n")
+            f.write("=" * 60 + "\n\n")
+            f.write(texto)
+        logger.info(f"Texto de página de error guardado en: {ruta_txt}")
+        return True
+    except Exception as e:
+        logger.error(f"No se pudo guardar el texto de la página: {e}")
+        return False
+
+def es_pagina_error_servidor(driver):
+    """
+    Detecta si la página actual es una pantalla de error del servidor
+    (Laravel, PHP, 500, etc.) en vez de la app normal.
+    """
+    indicadores = [
+        "Internal Server Error",
+        "BindingResolutionException",
+        "Exception trace",
+        "Fatal error",
+        "Whoops",
+        "Illuminate\\",
+    ]
+    try:
+        texto_pagina = driver.find_element("tag name", "body").text
+        return any(ind in texto_pagina for ind in indicadores)
+    except Exception:
+        return False

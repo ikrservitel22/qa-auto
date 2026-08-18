@@ -4,7 +4,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import time
-
+import pytest
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
@@ -17,7 +17,7 @@ from utili.waits import (
     wait_clickable_xpath,
 )
 
-
+@pytest.mark.dependency(name="modulo_inventario_ok", depends=["login_ok"], scope="session")
 def test_inventario_todos_y_nuevo_articulo(driver_logueado):
     try:
         logger.info("========== INICIO test_inventario_todos_y_nuevo_articulo ==========")
@@ -49,7 +49,7 @@ def test_inventario_todos_y_nuevo_articulo(driver_logueado):
         driver_logueado.save_screenshot(f"reports/screen/inventario_{nombre}.png")
         raise
 
-
+@pytest.mark.dependency(depends=["modulo_inventario_extra_ok"], scope="session")
 def test_inventario_crear_articulo_flow(driver_logueado):
     """Flujo separado: crear un artículo nuevo desde el dashboard de inventario."""
     try:

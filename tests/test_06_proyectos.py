@@ -1,5 +1,4 @@
 from datetime import datetime
-
 from utili.config import *
 from utili.logger import logger
 from utili.locators import (
@@ -11,6 +10,8 @@ from utili.locators import (
     PROYECTOS_PAGE_TITLE,
     PROYECTOS_EDITAR_TITLE,
 )
+import pytest
+from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error
 from utili.errores import tipificar_error
 from utili.waits import (
     click_when_clickable,
@@ -18,7 +19,7 @@ from utili.waits import (
     wait_text_present,
 )
 
-
+@pytest.mark.dependency(name="modulo_proyectos_ok", depends=["login_ok"], scope="session")
 def test_proyectos_flujo(driver_logueado):
 
     try:
@@ -88,6 +89,12 @@ def test_proyectos_flujo(driver_logueado):
         driver_logueado.save_screenshot(ruta)
 
         logger.error(f"CAPTURA: {ruta}")
+
+        if es_pagina_error_servidor(driver_logueado):
+            ruta_txt = f"reports/screen/proyectos_ERROR_{nombre}.txt"
+            guardar_texto_pagina_error(driver_logueado, ruta_txt)
+            logger.error(f"TEXTO DE ERROR GUARDADO: {ruta_txt}")
+
         logger.error("========== FIN TEST_PROYECTOS_FLUJO ==========")
 
         raise

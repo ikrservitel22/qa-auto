@@ -1,5 +1,6 @@
-selenium==4.11.2
-pytest==7.3.1
-webdriver-manager==3.8.6
-pytest-html==3.1.1
-requests==2.31.0
+selenium
+pytest
+webdriver-manager
+pytest-html
+requests
+vncdotool

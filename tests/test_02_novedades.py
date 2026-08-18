@@ -103,6 +103,7 @@ timeout = 10  # Tiempo de espera en segundos para WebDriverWait
 
 #         raise
 
+@pytest.mark.dependency(name="modulo_novedades_ok", depends=["login_ok"], scope="session")
 def test_btt_crear_novedad(driver_logueado):
     try:
 
@@ -154,7 +155,8 @@ def test_btt_crear_novedad(driver_logueado):
         logger.error("========== FIN TEST_BTT_CREAR_NOVEDAD ==========\n")
 
         raise
-    
+
+@pytest.mark.dependency(depends=["modulo_novedades_ok"], scope="session")
 def test_btones_novedades(driver_logueado):
     try:
 

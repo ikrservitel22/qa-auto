@@ -1,7 +1,7 @@
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-
+import pytest
 from utili.config import *
 from utili.logger import logger
 from utili.errores import tipificar_error
@@ -14,7 +14,7 @@ from utili.locators import (
 )
 from utili.waits import click_sidebar_menu_item, wait_text_in_element
 
-
+@pytest.mark.dependency(name="modulo_organigrama_ok", depends=["login_ok"], scope="session")
 def test_organigrama_flujo(driver_logueado):
 
     try:
