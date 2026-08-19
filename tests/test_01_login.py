@@ -3,10 +3,11 @@ from datetime import datetime
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import pytest
+import inspect
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
-from utili.errores import tipificar_error
+from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error, manejar_error_test
 from utili.waits import send_keys_when_visible, click_when_clickable, wait_visible_xpath
 from utili.screenshot_full import capturar_pantalla_completa
 
@@ -41,21 +42,7 @@ def test_login(driver):
 
     except Exception as e:
 
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_LOGIN ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        ruta = f"reports/screen/login_{nombre}.png"
-
-        driver.save_screenshot(ruta)
-
-        logger.error(f"CAPTURA: {ruta}")
-        logger.error("========== FIN TEST_LOGIN ==========\n")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise
 
@@ -91,20 +78,6 @@ def test_logout(driver_logueado):
 
     except Exception as e:
 
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_LOGOUT ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        ruta = f"reports/screen/logout_{nombre}.png"
-
-        driver_logueado.save_screenshot(ruta)
-
-        logger.error(f"CAPTURA: {ruta}")
-        logger.error("========== FIN TEST_LOGOUT ==========\n")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise

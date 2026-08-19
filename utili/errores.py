@@ -1,3 +1,4 @@
+from datetime import datetime
 from selenium.common.exceptions import (
     NoSuchElementException,
     TimeoutException,
@@ -10,7 +11,6 @@ from selenium.common.exceptions import (
     WebDriverException,
 )
 from utili.logger import logger
-
 REINTENTABLES = {
     "TIEMPO_ESPERA",
     "ELEMENTO_DESACTUALIZADO",
@@ -90,3 +90,51 @@ def es_pagina_error_servidor(driver):
         return any(ind in texto_pagina for ind in indicadores)
     except Exception:
         return False
+
+def manejar_error_test(driver, error, nombre_test):
+    """
+    Manejo estándar de errores para todos los tests:
+    - Detecta y cierra alertas nativas de JS ANTES de tocar el driver (evita cuelgues)
+    - Loguea el error tipificado
+    - Toma captura de pantalla del navegador (siempre, salvo que falle)
+    - Si es una página de error de servidor (Laravel/PHP), guarda el texto también
+    """
+    nombre_archivo = datetime.now().strftime("%Y%m%d_%H%M%S")
+    ruta = f"reports/screen/{nombre_test}_{nombre_archivo}.png"
+
+    tipo_error = tipificar_error(error)
+
+    logger.error(f"========== ERROR: {nombre_test.upper()} ==========")
+    logger.error(f"TIPO DE ERROR: {tipo_error}")
+    logger.error(f"DETALLE: {error}")
+
+    # 1. Revisar y cerrar alerta nativa de JS ANTES de cualquier otra interacción
+    alerta_texto = None
+    try:
+        alerta = driver.switch_to.alert
+        alerta_texto = alerta.text
+        logger.warning(f"ALERTA DETECTADA Y CERRADA: {alerta_texto}")
+        alerta.accept()
+    except Exception:
+        pass  # no había alerta, seguimos normal
+
+    # 2. Ahora ya es seguro pedir la URL
+    try:
+        logger.error(f"URL: {driver.current_url}")
+    except Exception:
+        logger.error("URL: (no se pudo obtener)")
+
+    # 3. Y ahora sí, captura sin riesgo de congelarse
+    try:
+        driver.save_screenshot(ruta)
+        logger.error(f"CAPTURA: {ruta}")
+    except Exception as se:
+        logger.error(f"No se pudo tomar captura: {se}")
+
+    # 4. Si detectamos página de error de servidor, guardamos el texto también
+    if es_pagina_error_servidor(driver):
+        ruta_txt = f"reports/screen/{nombre_test}_ERROR_{nombre_archivo}.txt"
+        guardar_texto_pagina_error(driver, ruta_txt)
+        logger.error(f"TEXTO DE ERROR GUARDADO: {ruta_txt}")
+
+    logger.error(f"========== FIN {nombre_test.upper()} ==========\n")

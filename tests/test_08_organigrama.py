@@ -2,9 +2,10 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import pytest
+import inspect
 from utili.config import *
 from utili.logger import logger
-from utili.errores import tipificar_error
+from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error, manejar_error_test
 from utili.locators import (
     SIDEBAR_ORGANIGRAMA_BUTTON,
     MENU_ORGANIGRAMA_COMPLETO,
@@ -57,18 +58,6 @@ def test_organigrama_flujo(driver_logueado):
 
     except Exception as e:
 
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_ORGANIGRAMA_FLUJO ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-        ruta = f"reports/screen/organigrama_{nombre}.png"
-        driver_logueado.save_screenshot(ruta)
-
-        logger.error(f"CAPTURA: {ruta}")
-        logger.error("========== FIN TEST_ORGANIGRAMA_FLUJO ==========")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise

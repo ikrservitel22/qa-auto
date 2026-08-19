@@ -7,6 +7,7 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 import os
 import glob
+import pytest_html
 from datetime import datetime
 from utili.config import *
 from utili.locators import *
@@ -42,6 +43,15 @@ def reset_logger():
         except Exception:
             pass
 
+    # limpiar descargas previas, una sola vez por sesión
+    os.makedirs("/workspace/descargas", exist_ok=True)
+    for archivo_desc in glob.glob("/workspace/descargas/*"):
+        try:
+            os.remove(archivo_desc)
+        except Exception:
+            pass
+            pass
+
     yield
 
     for handler in list(logger.handlers):
@@ -54,13 +64,6 @@ def driver():
     # Host directory where test runner expects downloads to appear
     host_download_dir = "/workspace/descargas"
     os.makedirs(host_download_dir, exist_ok=True)
-
-    # Clean previous downloads on the host side
-    for archivo in glob.glob(f"{host_download_dir}/*"):
-        try:
-            os.remove(archivo)
-        except Exception:
-            pass
 
     # Path inside the Selenium/browser container where Chrome will actually write downloads.
     # IMPORTANT: you must bind-mount the host `host_download_dir` to this container path
@@ -162,3 +165,122 @@ def driver_logueado(driver):
     logger.info("LOGIN EN FIXTURE driver_logueado EXITOSO")
 
     yield driver
+
+def pytest_html_report_title(report):
+    report.title = "Reporte de Automatización — Servitel Intranet"
+
+
+def pytest_configure(config):
+    if not hasattr(config, "_metadata"):
+        config._metadata = {}
+    config._metadata.update({
+        "Proyecto": "QA Automation - Intranet Servitel",
+        "Entorno": "QA / Staging",
+        "Navegador": "Chrome (Selenium Grid)",
+    })
+
+_resultados_sesion = []
+
+@pytest.hookimpl(hookwrapper=True)
+def pytest_runtest_makereport(item, call):
+    outcome = yield
+    report = outcome.get_result()
+    extra = getattr(report, "extras", [])
+
+    if report.when == "call":
+        entrada = {
+            "test": item.name,
+            "archivo": str(item.fspath).split("/tests/")[-1],
+            "resultado": "FAILED" if report.failed else ("SKIPPED" if report.skipped else "PASSED"),
+            "tipo_error": None,
+            "mensaje": None,
+            "url": None,
+            "captura": None,
+            "texto_error": None,
+            "log_pasos": None,   # 👈 nuevo campo
+        }
+
+        if report.failed and call.excinfo is not None:
+            from utili.errores import tipificar_error
+            entrada["tipo_error"] = tipificar_error(call.excinfo.value)
+            entrada["mensaje"] = str(call.excinfo.value).strip().split("\n")[0] or type(call.excinfo.value).__name__
+
+            # 👇 NUEVO: extraer el log de pasos capturado durante el test
+            log_call = next(
+                (contenido for titulo, contenido in report.sections if "log call" in titulo.lower()),
+                None
+            )
+            entrada["log_pasos"] = log_call
+
+            driver_actual = item.funcargs.get("driver_logueado") or item.funcargs.get("driver")
+            if driver_actual is not None:
+                try:
+                    entrada["url"] = driver_actual.current_url
+                except Exception:
+                    pass
+
+            nombre_test = item.name
+            capturas = sorted(
+                glob.glob(f"/workspace/reports/screen/{nombre_test}_*.png"),
+                key=os.path.getmtime, reverse=True
+            )
+            if capturas:
+                entrada["captura"] = capturas[0]
+                with open(capturas[0], "rb") as img_file:
+                    import base64
+                    img_b64 = base64.b64encode(img_file.read()).decode()
+                extra.append(pytest_html.extras.image(img_b64, mime_type="image/png"))
+
+            textos = sorted(
+                glob.glob(f"/workspace/reports/screen/{nombre_test}_ERROR_*.txt"),
+                key=os.path.getmtime, reverse=True
+            )
+            if textos:
+                entrada["texto_error"] = textos[0]
+                with open(textos[0], "r", encoding="utf-8") as f:
+                    contenido = f.read()
+                contenido_html = (
+                    contenido.replace("&", "&amp;").replace("<", "&lt;").replace(">", "&gt;")
+                )
+                extra.append(pytest_html.extras.html(
+                    f"<details><summary><b>Texto del error (clic para expandir)</b></summary>"
+                    f"<pre style='white-space:pre-wrap; background:#f6f6f6; padding:10px; "
+                    f"border:1px solid #ddd; max-height:400px; overflow-y:auto;'>{contenido_html}</pre></details>"
+                ))
+
+        _resultados_sesion.append(entrada)
+
+    report.extras = extra
+
+def pytest_sessionfinish(session, exitstatus):
+    ruta = "/workspace/reports/logs/resumen_ia.txt"
+
+    fallidos = [r for r in _resultados_sesion if r["resultado"] == "FAILED"]
+    pasados = [r for r in _resultados_sesion if r["resultado"] == "PASSED"]
+    saltados = [r for r in _resultados_sesion if r["resultado"] == "SKIPPED"]
+
+    with open(ruta, "w", encoding="utf-8") as f:
+        f.write("RESUMEN DE EJECUCIÓN DE PRUEBAS AUTOMATIZADAS\n")
+        f.write(f"Fecha: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
+        f.write(f"Total: {len(_resultados_sesion)} | Pasaron: {len(pasados)} | Fallaron: {len(fallidos)} | Saltados: {len(saltados)}\n")
+        f.write("=" * 70 + "\n\n")
+
+        if fallidos:
+            f.write("PRUEBAS FALLIDAS (requieren atención):\n\n")
+            for r in fallidos:
+                f.write("-" * 70 + "\n")
+                f.write(f"TEST: {r['test']}\n")
+                f.write(f"ARCHIVO: {r['archivo']}\n")
+                f.write(f"TIPO_ERROR: {r['tipo_error']}\n")
+                f.write(f"MENSAJE: {r['mensaje']}\n")
+                f.write(f"URL: {r['url']}\n")
+                f.write(f"CAPTURA: {r['captura']}\n")
+                f.write(f"TEXTO_ERROR_DETALLADO: {r['texto_error']}\n\n")
+
+        if saltados:
+            f.write("PRUEBAS SALTADAS:\n")
+            for r in saltados:
+                f.write(f"  - {r['test']} ({r['archivo']})\n")
+            f.write("\n")
+
+    logger.info(f"Resumen para IA generado en: {ruta}")

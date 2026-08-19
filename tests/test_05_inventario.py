@@ -5,10 +5,11 @@ from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
 import time
 import pytest
+import inspect
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
-from utili.errores import tipificar_error
+from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error, manejar_error_test
 from utili.waits import (
     click_when_clickable,
     wait_visible_xpath,
@@ -42,14 +43,12 @@ def test_inventario_todos_y_nuevo_articulo(driver_logueado):
         logger.info("========== FIN test_inventario_todos_y_nuevo_articulo ==========")
 
     except Exception as e:
-        tipo_error = tipificar_error(e)
-        logger.exception(f"ERROR EN test_inventario_todos_y_nuevo_articulo: {e}")
-        logger.info(f"URL al fallar: {driver_logueado.current_url}")
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-        driver_logueado.save_screenshot(f"reports/screen/inventario_{nombre}.png")
+
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
+
         raise
 
-@pytest.mark.dependency(depends=["modulo_inventario_extra_ok"], scope="session")
+@pytest.mark.dependency(depends=["modulo_inventario_ok"], scope="session")
 def test_inventario_crear_articulo_flow(driver_logueado):
     """Flujo separado: crear un artículo nuevo desde el dashboard de inventario."""
     try:
@@ -109,7 +108,7 @@ def test_inventario_crear_articulo_flow(driver_logueado):
         logger.info("--- FIN flow crear artículo ---")
 
     except Exception as e:
-        logger.exception(f"ERROR EN flow crear artículo: {e}")
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-        driver_logueado.save_screenshot(f"reports/screen/inventario_flow_{nombre}.png")
+
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
+
         raise

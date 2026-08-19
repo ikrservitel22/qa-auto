@@ -1,100 +1,64 @@
 from datetime import datetime
 from utili.config import *
 from utili.logger import logger
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
 from utili.locators import (
     MENU_PROYECTOS,
     PROYECTOS_ACCION_VER,
+    PROYECTOS_DETALLE_TITLE,
     PROYECTOS_ACCION_EDITAR,
     PROYECTOS_EDITAR_VOLVER,
+    PROYECTOS_DETALLE_VOLVER_LISTADO,
     PROYECTOS_NUEVO_BUTTON,
     PROYECTOS_PAGE_TITLE,
     PROYECTOS_EDITAR_TITLE,
 )
 import pytest
-from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error
-from utili.errores import tipificar_error
-from utili.waits import (
-    click_when_clickable,
-    wait_text_in_element,
-    wait_text_present,
-)
+import inspect
+from utili.errores import manejar_error_test
+from utili.waits import click_when_clickable, wait_text_in_element
 
 @pytest.mark.dependency(name="modulo_proyectos_ok", depends=["login_ok"], scope="session")
 def test_proyectos_flujo(driver_logueado):
 
     try:
-
         logger.info("========== INICIO TEST_PROYECTOS_FLUJO ==========")
 
-        # Abrir item del sidebar
-        logger.info("Click en menú lateral - segunda opción")
+        logger.info("Paso 1: Click en menú lateral - Proyectos")
         click_when_clickable(driver_logueado, MENU_PROYECTOS)
+        wait_text_in_element(driver_logueado, PROYECTOS_PAGE_TITLE, "Proyectos de desarrollo")
 
-        # Pulsar primer enlace de la fila (VER / acciones)
-        logger.info("Click en acción 1 de la primera fila")
+        logger.info("Paso 2: Click en 'Ver' de la primera fila")
         click_when_clickable(driver_logueado, PROYECTOS_ACCION_VER)
 
-        # Esperar a que salga el texto VER en la página
-        logger.info("Esperando texto 'VER'")
-        wait_text_present(driver_logueado, "VER")
+        # El nombre del proyecto es variable, lo capturamos dinámicamente
+        elemento_detalle = WebDriverWait(driver_logueado, TIMEOUT).until(
+            EC.visibility_of_element_located((By.XPATH, PROYECTOS_DETALLE_TITLE))
+        )
+        nombre_proyecto = elemento_detalle.text.strip()
+        logger.info(f"Proyecto detectado: '{nombre_proyecto}'")
 
-        # Click en devolver (dejado comentado porque la función aún no está)
-        # logger.info("Click en devolver")
-        # click_when_clickable(driver_logueado, '/html/body/div/.../a_devolver')
-
-        # Esperar que aparezca "Proyectos de desarrollo"
-        logger.info("Esperando 'Proyectos de desarrollo'")
-        wait_text_in_element(driver_logueado, '/html/body/div/div[2]/div/div/div/div[1]/h5', 'Proyectos de desarrollo')
-
-        # Click en la segunda acción (Editar)
-        logger.info("Click en acción 2 (Editar) de la primera fila")
+        logger.info("Paso 3: Click en 'Editar'")
         click_when_clickable(driver_logueado, PROYECTOS_ACCION_EDITAR)
+        wait_text_in_element(driver_logueado, PROYECTOS_EDITAR_TITLE, "Editar proyecto")
 
-        # Esperar que diga "Editar proyecto"
-        logger.info("Esperando 'Editar proyecto'")
-        wait_text_in_element(driver_logueado, PROYECTOS_EDITAR_TITLE, 'Editar proyecto')
-
-        # Click en el enlace dentro del formulario (div[7]/a)
-        logger.info("Click en link del formulario (div[7]/a)")
+        logger.info("Paso 4: Click en 'Volver' del formulario")
         click_when_clickable(driver_logueado, PROYECTOS_EDITAR_VOLVER)
+        wait_text_in_element(driver_logueado, PROYECTOS_DETALLE_TITLE, nombre_proyecto)
 
-        # Esperar regresar a "Proyectos de desarrollo"
-        logger.info("Esperando regresar a 'Proyectos de desarrollo'")
-        wait_text_in_element(driver_logueado, PROYECTOS_PAGE_TITLE, 'Proyectos de desarrollo')
+        logger.info("Paso 5: Click para volver al listado de proyectos")
+        click_when_clickable(driver_logueado, PROYECTOS_DETALLE_VOLVER_LISTADO)
+        wait_text_in_element(driver_logueado, PROYECTOS_PAGE_TITLE, "Proyectos de desarrollo")
 
-        # Click en crear nuevo proyecto
-        logger.info("Click en 'Nuevo proyecto' (abrir formulario)")
+        logger.info("Paso 6: Click en 'Nuevo proyecto'")
         click_when_clickable(driver_logueado, PROYECTOS_NUEVO_BUTTON)
-
-        # Esperar que diga "Nuevo proyecto"
-        logger.info("Esperando 'Nuevo proyecto'")
-        wait_text_in_element(driver_logueado, PROYECTOS_EDITAR_TITLE, 'Nuevo proyecto')
+        wait_text_in_element(driver_logueado, PROYECTOS_EDITAR_TITLE, "Nuevo proyecto")
 
         logger.info("TEST_PROYECTOS_FLUJO COMPLETADO")
         logger.info("========== FIN TEST_PROYECTOS_FLUJO ==========")
 
     except Exception as e:
-
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_PROYECTOS_FLUJO ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        ruta = f"reports/screen/proyectos_{nombre}.png"
-
-        driver_logueado.save_screenshot(ruta)
-
-        logger.error(f"CAPTURA: {ruta}")
-
-        if es_pagina_error_servidor(driver_logueado):
-            ruta_txt = f"reports/screen/proyectos_ERROR_{nombre}.txt"
-            guardar_texto_pagina_error(driver_logueado, ruta_txt)
-            logger.error(f"TEXTO DE ERROR GUARDADO: {ruta_txt}")
-
-        logger.error("========== FIN TEST_PROYECTOS_FLUJO ==========")
-
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
         raise

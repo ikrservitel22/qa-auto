@@ -6,6 +6,7 @@ from datetime import datetime
 import time
 import pytest
 import os
+import inspect
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException
@@ -14,9 +15,9 @@ from utili.screenshot_full import capturar_pantalla_completa
 from utili.config import *
 from utili.locators import *
 from utili.logger import logger
-from utili.errores import tipificar_error
 from utili.waits import click_when_clickable, wait_text_in_page, wait_text_present, wait_visible_xpath
 from utili.downloads import download_via_requests
+from utili.errores import tipificar_error, es_pagina_error_servidor, guardar_texto_pagina_error, manejar_error_test
 
 @pytest.mark.dependency(name="modulo_horarios_ok", depends=["login_ok"], scope="session")
 def test_horarios(driver_logueado):
@@ -42,22 +43,7 @@ def test_horarios(driver_logueado):
         logger.info("========== FIN TEST_HORARIOS ==========\n")
     except Exception as e:
 
-        tipo_error = tipificar_error(e)
-
-        logger.error("========== ERROR: TEST_HORARIOS ==========")
-        logger.error(f"TIPO DE ERROR: {tipo_error}")
-        logger.error(f"DETALLE: {e}")
-        logger.error(f"URL: {driver_logueado.current_url}")
-
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        driver_logueado.save_screenshot(
-            f"reports/screen/horarios_{nombre}.png"
-        )
-
-        logger.error(f"CAPTURA: reports/screen/horarios_{nombre}.png")
-        logger.info("========== FIN TEST_HORARIOS ==========\n")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise
 
@@ -190,17 +176,7 @@ def test_estado_horario(driver_logueado):
 
     except Exception as e:
 
-        logger.exception(f"ERROR EN TEST_ESTADO_HORARIO: {e}")
-        logger.info(f"URL al fallar: {driver_logueado.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        driver_logueado.save_screenshot(
-            f"reports/screen/horario_{nombre}.png"
-        )
-
-        logger.info(f"Captura guardada: reports/screen/estado_horario_{nombre}.png")
-        logger.info("========== FIN TEST_ESTADO_HORARIO ==========\n")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise
 
@@ -235,18 +211,7 @@ def test_solicitud_cambios(driver_logueado):
 
     except Exception as e:
 
-        logger.exception(f"ERROR EN TEST_SOLICITUD_CAMBIOS: {e}")
-        logger.info(f"URL al fallar: {driver_logueado.current_url}")
-
-        nombre = datetime.now().strftime("%Y%m%d_%H%M%S")
-
-        driver_logueado.save_screenshot(
-            f"reports/screen/horarios_{nombre}.png"
-        )
-        capturar_pantalla_completa(f"reports/screen/horas_extra_FULL_{nombre}.png")
-
-        logger.info(f"Captura guardada: reports/screen/solicitud_cambios_{nombre}.png")
-        logger.info("========== FIN TEST_SOLICITUD_CAMBIOS ==========\n")
+        manejar_error_test(driver_logueado, e, inspect.currentframe().f_code.co_name)
 
         raise
 

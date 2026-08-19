@@ -48,12 +48,14 @@ NOVEDADES_BACK_BUTTON = '/html/body/div/div[2]/div/div/div/div/div[1]/a'
 
 # Proyectos
 MENU_PROYECTOS = '//*[@id="sidebarNav"]/a[2]'
-PROYECTOS_ACCION_VER = '/html/body/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[1]/td[7]/a[1]'
-PROYECTOS_ACCION_EDITAR = '/html/body/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[1]/td[7]/a[2]'
-PROYECTOS_EDITAR_VOLVER = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div[7]/a'
-PROYECTOS_NUEVO_BUTTON = '/html/body/div/div[2]/div/div/div/div[1]/a'
 PROYECTOS_PAGE_TITLE = '/html/body/div/div[2]/div/div/div/div[1]/h5'
+PROYECTOS_ACCION_VER = '/html/body/div/div[2]/div/div/div/div[2]/div/table/tbody/tr[1]/td[7]/a[1]/i'
+PROYECTOS_DETALLE_TITLE = '/html/body/div/div[2]/div/div/div[1]/div[1]/div[1]/div/h5'
+PROYECTOS_ACCION_EDITAR = '/html/body/div/div[2]/div/div/div[1]/div[1]/div[2]/a[1]'
 PROYECTOS_EDITAR_TITLE = '/html/body/div/div[2]/div/div/div/div/div[1]/h5'
+PROYECTOS_EDITAR_VOLVER = '/html/body/div/div[2]/div/div/div/div/div[2]/form/div[7]/a'
+PROYECTOS_DETALLE_VOLVER_LISTADO = '/html/body/div/div[2]/div/div/div[1]/div[1]/div[2]/a[2]'
+PROYECTOS_NUEVO_BUTTON = '/html/body/div/div[2]/div/div/div/div[1]/a'
 
 # Servidores
 MENU_SERVIDORES = '//*[@id="sidebarNav"]/a[3]'
