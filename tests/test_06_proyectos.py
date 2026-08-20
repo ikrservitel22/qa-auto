@@ -18,7 +18,7 @@ from utili.locators import (
 import pytest
 import inspect
 from utili.errores import manejar_error_test
-from utili.waits import click_when_clickable, wait_text_in_element
+from utili.waits import click_when_clickable, click_por_texto_o_xpath, wait_text_in_element
 
 @pytest.mark.dependency(name="modulo_proyectos_ok", depends=["login_ok"], scope="session")
 def test_proyectos_flujo(driver_logueado):
@@ -27,7 +27,7 @@ def test_proyectos_flujo(driver_logueado):
         logger.info("========== INICIO TEST_PROYECTOS_FLUJO ==========")
 
         logger.info("Paso 1: Click en menú lateral - Proyectos")
-        click_when_clickable(driver_logueado, MENU_PROYECTOS)
+        click_por_texto_o_xpath(driver_logueado, "Proyectos", MENU_PROYECTOS)
         wait_text_in_element(driver_logueado, PROYECTOS_PAGE_TITLE, "Proyectos de desarrollo")
 
         logger.info("Paso 2: Click en 'Ver' de la primera fila")

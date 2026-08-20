@@ -95,7 +95,7 @@ def manejar_error_test(driver, error, nombre_test):
     """
     Manejo estándar de errores para todos los tests:
     - Detecta y cierra alertas nativas de JS ANTES de tocar el driver (evita cuelgues)
-    - Loguea el error tipificado
+    - Loguea el error tipificado (o el error real de servidor si aplica)
     - Toma captura de pantalla del navegador (siempre, salvo que falle)
     - Si es una página de error de servidor (Laravel/PHP), guarda el texto también
     """
@@ -103,10 +103,24 @@ def manejar_error_test(driver, error, nombre_test):
     ruta = f"reports/screen/{nombre_test}_{nombre_archivo}.png"
 
     tipo_error = tipificar_error(error)
+    mensaje_error = str(error).strip() or type(error).__name__
+
+    # 0. Si la página muestra un error real de servidor (Laravel/PHP),
+    #    esa es la causa real — sobreescribimos el tipo/mensaje genérico de Selenium
+    es_error_servidor = False
+    try:
+        es_error_servidor = es_pagina_error_servidor(driver)
+        if es_error_servidor:
+            tipo_error = "ERROR_SERVIDOR_APP"
+            texto_pagina = driver.find_element("tag name", "body").text
+            lineas = [l.strip() for l in texto_pagina.split("\n") if l.strip()]
+            mensaje_error = " | ".join(lineas[:3])
+    except Exception:
+        pass
 
     logger.error(f"========== ERROR: {nombre_test.upper()} ==========")
     logger.error(f"TIPO DE ERROR: {tipo_error}")
-    logger.error(f"DETALLE: {error}")
+    logger.error(f"DETALLE: {mensaje_error}")
 
     # 1. Revisar y cerrar alerta nativa de JS ANTES de cualquier otra interacción
     alerta_texto = None
@@ -132,9 +146,15 @@ def manejar_error_test(driver, error, nombre_test):
         logger.error(f"No se pudo tomar captura: {se}")
 
     # 4. Si detectamos página de error de servidor, guardamos el texto también
-    if es_pagina_error_servidor(driver):
+    if es_error_servidor:
         ruta_txt = f"reports/screen/{nombre_test}_ERROR_{nombre_archivo}.txt"
         guardar_texto_pagina_error(driver, ruta_txt)
         logger.error(f"TEXTO DE ERROR GUARDADO: {ruta_txt}")
 
     logger.error(f"========== FIN {nombre_test.upper()} ==========\n")
+
+    return {
+        "tipo_error": tipo_error,
+        "mensaje": mensaje_error,
+        "es_error_servidor": es_error_servidor,
+    }

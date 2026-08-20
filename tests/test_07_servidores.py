@@ -13,7 +13,7 @@ from utili.locators import (
     SERVIDOR_DETAIL_TITLE,
 )
 from utili.errores import manejar_error_test
-from utili.waits import click_when_clickable, wait_text_in_element
+from utili.waits import click_when_clickable, click_por_texto_o_xpath, wait_text_in_element
 
 @pytest.mark.dependency(name="modulo_servidores_ok", depends=["login_ok"], scope="session")
 def test_servidores_flujo(driver_logueado):
@@ -21,8 +21,8 @@ def test_servidores_flujo(driver_logueado):
     try:
         logger.info("========== INICIO TEST_SERVIDORES_FLUJO ==========")
 
-        logger.info("Click en menú lateral - tercera opción")
-        click_when_clickable(driver_logueado, MENU_SERVIDORES)
+        logger.info("Click en menú lateral - Servidores")
+        click_por_texto_o_xpath(driver_logueado, "Servidores", MENU_SERVIDORES)
 
         logger.info("Esperando 'Inventario de Servidores'")
         wait_text_in_element(driver_logueado, SERVIDORES_PAGE_TITLE, 'Inventario de Servidores')
@@ -30,14 +30,14 @@ def test_servidores_flujo(driver_logueado):
         logger.info("Click en primer servidor de la tabla")
         click_when_clickable(driver_logueado, SERVIDORES_PRIMER_ENLACE)
 
-        # 👇 Ya no exigimos un ID fijo, solo que sí navegó a un detalle de servidor (cualquiera)
+        # Ya no exigimos un ID fijo, solo que sí navegó a un detalle de servidor (cualquiera)
         logger.info("Esperando navegar a un detalle de servidor")
         WebDriverWait(driver_logueado, TIMEOUT).until(
             lambda d: "/servidores/" in d.current_url and d.current_url.rstrip("/") != f"{URL}servidores"
         )
         logger.info(f"URL de detalle alcanzada: {driver_logueado.current_url}")
 
-        # 👇 Capturamos el nombre real del servidor, sea cual sea
+        # Capturamos el nombre real del servidor, sea cual sea
         elemento_detalle = WebDriverWait(driver_logueado, TIMEOUT).until(
             EC.visibility_of_element_located((By.XPATH, SERVIDOR_DETAIL_TITLE))
         )
