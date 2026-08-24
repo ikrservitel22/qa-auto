@@ -41,7 +41,7 @@ HORAS_EXTRA_MODAL_PREVIEW = '/html/body/div[2]/div'
 
 # Novedades - tabla y acciones
 NOVEDADES_TABLA_MIAS_PDF_THIRD = '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/a[1]'
-NOVEDADES_TABLA_MIAS_EDIT_THIRD = '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/a[2]'
+NOVEDADES_TABLA_MIAS_EDIT_THIRD = '//*[@id="tabla-mias"]/tbody/tr[4]/td[9]/div/a[2]'
 NOVEDADES_TABLA_MIAS_PREVIEW_THIRD = '//*[@id="tabla-mias"]/tbody/tr[3]/td[9]/div/button'
 NOVEDADES_MODAL_DETALLE = '//*[@id="modal-detalle"]/div/div'
 NOVEDADES_BACK_BUTTON = '/html/body/div/div[2]/div/div/div/div/div[1]/a'
