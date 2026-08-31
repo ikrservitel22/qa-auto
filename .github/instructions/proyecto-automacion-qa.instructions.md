@@ -116,6 +116,7 @@ applyTo: "**/*.py"
 - **Descargas**: `/workspace/descargas/`
 - **Localizadores**: `/workspace/utili/locators.py`
 - **Configuración**: `/workspace/utili/config.py`
+- **Artefactos por corrida vía API**: `/workspace/reports/runs/{run_id}/` (ver `orchestrator_api/`)
 
 ## Ejecución Típica
 
@@ -123,8 +124,16 @@ applyTo: "**/*.py"
 # Levantar servicios Docker
 docker-compose up -d
 
-# Ejecutar tests con reporte HTML
+# Ejecutar tests con reporte HTML (funciona combinado desde el fix de __init__.py del 2026-08-28)
 python -m pytest -s tests/ --html=reports/html/reporte.html --self-contained-html
+```
+
+O disparar la corrida por HTTP en vez de SSH manual (servicio `orchestrator-api`, ver `contexto-proyecto.md` →
+sección "Microservicio: orchestrator-api" para el detalle completo de endpoints):
+
+```bash
+docker-compose up -d chrome orchestrator-api
+curl -X POST http://127.0.0.1:8080/runs -H 'Content-Type: application/json' -d '{"suite":"admin"}'
 ```
 
 ## Consulta Primero
