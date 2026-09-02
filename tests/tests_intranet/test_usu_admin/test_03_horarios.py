@@ -76,11 +76,20 @@ def test_estado_horario(driver_logueado):
                     "arguments[0].scrollIntoView({block:'center'});",
                     boton
                 )
-                time.sleep(0.5)
+                WebDriverWait(driver_logueado, TIMEOUT).until(
+                    lambda d: boton.is_displayed() and boton.is_enabled()
+                )
                 boton.click()
-                time.sleep(5)
 
-                archivos = os.listdir("/workspace/descargas")
+                # Espera activa (no un sleep fijo) a que el archivo aparezca en descargas,
+                # con el mismo tope de 5s que tenía el sleep original.
+                archivos = []
+                espera_descarga = time.time() + 5
+                while time.time() < espera_descarga:
+                    archivos = os.listdir("/workspace/descargas")
+                    if archivos:
+                        break
+                    time.sleep(0.5)
                 logger.info(f"Archivos descargados: {archivos}")
                 logger.info("Botón presionado correctamente")
                 break
@@ -88,6 +97,9 @@ def test_estado_horario(driver_logueado):
             except NoSuchElementException:
                 logger.info("Botón no encontrado. Bajando...")
                 driver_logueado.execute_script("window.scrollBy(0, 500);")
+                # No hay condición de DOM que esperar aquí (justo estamos reintentando
+                # porque el elemento no aparece); se deja como pausa de estabilización
+                # tras el scroll, no como sustituto de un wait_* que sí exista.
                 time.sleep(0.5)
 
         else:

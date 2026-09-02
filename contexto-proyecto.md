@@ -13,8 +13,8 @@ no en este repo — `orchestrator-api` solo expone los datos crudos por corrida 
 
 - Framework de pruebas: `pytest`
 - Navegador: Google Chrome en Selenium Grid remoto
-- Arquitectura: fixtures en los `conftest.py` de cada suite (`tests/tests_intranet/test_usu_admin/`,
-  `tests/tests_intranet/test_usu_desarrollo/`), localizadores centralizados en `utili/locators.py`,
+- Arquitectura: fixtures en `tests/tests_intranet/conftest.py` (compartido por `test_usu_admin/` y
+  `test_usu_desarrollo/`), localizadores centralizados en `utili/locators.py`,
   configuración en `utili/config.py`
 - Microservicio nuevo: `orchestrator_api/` — API HTTP para disparar/consultar/borrar corridas (ver sección dedicada)
 - Artefactos por corrida manual: logs en `reports/logs/`, capturas en `reports/screen/`, reportes HTML en `reports/html/`, descargas en `descargas/`
@@ -24,14 +24,14 @@ no en este repo — `orchestrator-api` solo expone los datos crudos por corrida 
 
 - `/tests`
   - `test_utili_errores.py`: unit tests puros de `utili/errores.py` (sin Selenium, sin conftest, usa un `DriverFalso`)
+  - `tests_intranet/conftest.py`: **Fix 2026-09-02** — fixtures `driver`, `driver_logueado`, `reset_logger`; hooks de pytest-html y notificación a `ia-historias`. Antes vivía duplicado byte a byte en `test_usu_admin/conftest.py` y `test_usu_desarrollo/conftest.py`; se unificó en este único archivo (pytest lo aplica a ambas subcarpetas por jerarquía de directorios). `driver_logueado` resuelve el rol (`admin`/`desarrollo`) inspeccionando `request.node.fspath` en tiempo de ejecución de cada test — no un global fijado al importar el módulo — para que ambas suites usen sus propias credenciales incluso en una corrida combinada (`pytest tests/`) donde el conftest se importa una sola vez por proceso.
   - `tests_intranet/test_usu_admin/`: suite E2E con el usuario admin
-    - `conftest.py`: fixtures `driver`, `driver_logueado`, `reset_logger`; hooks de pytest-html y notificación a `ia-historias`
     - `test_01_login.py` … `test_08_organigrama.py`: login/logout, novedades, horarios, horas extra, inventario, proyectos, servidores, organigrama
-  - `tests_intranet/test_usu_desarrollo/`: la misma suite (conftest.py **idéntico byte a byte** al de `test_usu_admin`), pensada para el rol de desarrollo. **Fix 2026-09-02**: ya no comparte credenciales con `test_usu_admin` — ver nota de `utili/credentials.json` abajo
+  - `tests_intranet/test_usu_desarrollo/`: la misma suite, pensada para el rol de desarrollo. **Fix 2026-09-02**: ya no comparte credenciales con `test_usu_admin` — ver nota de `utili/credentials.json` abajo
   - `__init__.py` en `tests/`, `tests/tests_intranet/`, `test_usu_admin/` y `test_usu_desarrollo/`: agregados el 2026-08-28 para que pytest genere nombres de módulo únicos (`tests.tests_intranet.test_usu_admin.test_01_login` vs `...test_usu_desarrollo.test_01_login`). Antes de esto, `pytest tests/` fallaba con "import file mismatch" porque ambas carpetas tienen archivos con el mismo nombre y no había `__init__.py`.
   - ⚠️ No existe ya un `tests/conftest.py` plano ni `tests/test_01_login.py` sueltos — esa estructura vieja fue reemplazada por la de `tests_intranet/`. Los `.zip` en la raíz (`tests.zip`, `tests_actualizado.zip`, `tests_user_desarrollo.zip`) son snapshots/backups manuales, no código vivo.
 - `/utili`
-  - `config.py`: carga de `credentials.json`, URL base, credenciales y constantes de timeout/ruta (sin overrides por variable de entorno). **Fix 2026-09-02**: `credentials.json` ahora tiene un bloque `admin` y un bloque `desarrollo` (URL sigue siendo compartida). `config.py` expone `USUARIO_ADMIN`/`PASSWORD_ADMIN` y `USUARIO_DESARROLLO`/`PASSWORD_DESARROLLO` como constantes simultáneas (no un solo `USUARIO`/`PASSWORD` conmutado por rol), porque el módulo se importa una sola vez por proceso y una corrida combinada (`pytest tests/`) ejecuta ambas suites en el mismo proceso — un singleton "activo" se habría pisado entre suites. `test_usu_admin/{conftest.py,test_01_login.py}` usan el par `_ADMIN`; `test_usu_desarrollo/{conftest.py,test_01_login.py}` usan el par `_DESARROLLO`. `USUARIO`/`PASSWORD` genéricos se mantienen como alias de `_ADMIN` solo por compatibilidad. **Pendiente**: el bloque `admin` de `credentials.json` es un placeholder (duplica el usuario `pruebas.dersarrollo` de desarrollo) hasta que se provean las credenciales reales de admin.
+  - `config.py`: carga de `credentials.json`, URL base, credenciales y constantes de timeout/ruta (sin overrides por variable de entorno). **Fix 2026-09-02**: `credentials.json` ahora tiene un bloque `admin` y un bloque `desarrollo` (URL sigue siendo compartida). `config.py` expone `USUARIO_ADMIN`/`PASSWORD_ADMIN` y `USUARIO_DESARROLLO`/`PASSWORD_DESARROLLO` como constantes simultáneas (no un solo `USUARIO`/`PASSWORD` conmutado por rol), porque el módulo se importa una sola vez por proceso y una corrida combinada (`pytest tests/`) ejecuta ambas suites en el mismo proceso — un singleton "activo" se habría pisado entre suites. `test_usu_admin/test_01_login.py` usa el par `_ADMIN`; `test_usu_desarrollo/test_01_login.py` usa el par `_DESARROLLO`. El `driver_logueado` compartido en `tests_intranet/conftest.py` elige el par correcto en tiempo de ejecución (ver fix 2026-09-02 de arriba) en vez de tener una copia fija por archivo. `USUARIO`/`PASSWORD` genéricos se mantienen como alias de `_ADMIN` solo por compatibilidad. **Pendiente**: el bloque `admin` de `credentials.json` es un placeholder (duplica el usuario `pruebas.dersarrollo` de desarrollo) hasta que se provean las credenciales reales de admin.
   - `locators.py`: localizadores XPATH centralizados
   - `logger.py`: configuración del logger global
   - `downloads.py`: helper de descargas con cookies del navegador
@@ -46,6 +46,7 @@ no en este repo — `orchestrator-api` solo expone los datos crudos por corrida 
   - `runs/{run_id}/`: artefactos archivados por el `orchestrator-api`, uno por corrida disparada vía API (no se pisan entre sí)
 - `/descargas`: carpeta de descargas del navegador
 - `/assets`: CSS y estilos para reportes
+- `.gitignore`: ya tenía la regla `reports/`, pero `reports/html/reporte.html` había quedado trackeado desde antes de que existiera esa regla (`.gitignore` no retroactúa) — **fix 2026-09-02**: se destrackeó con `git rm --cached` (el archivo local se conserva, solo dejó de generar diffs ruidosos en cada corrida).
 - `docker-compose.yml`: servicios `qa-dev`, `chrome` y **`orchestrator-api`** (nuevo). El servicio `chrome` usaba `selenium/standalone-chrome:latest` (imagen flotante); desde el **fix 2026-09-01** está pinneado por digest (`selenium/standalone-chrome@sha256:cd778b6f38d9...`) a la build exacta que corresponde a `selenium==4.47.0`/Chrome 151 en `requirements.txt`, para que un futuro `docker pull`/rebuild no vuelva a driftear el grid por su cuenta mientras el cliente Python queda fijo.
 - `dockerfile`: imagen base para el contenedor de desarrollo (`qa-dev`)
 - `pytest.ini`: configuración de pytest (sin `testpaths`/`addopts`; solo markers `id` y `dependency`, sin selección por marker)
@@ -130,10 +131,10 @@ Ver la sección **Microservicio: orchestrator-api** más abajo para el detalle c
 
 ## Flujo de pruebas y fixtures
 
-- Cada suite (`test_usu_admin/`, `test_usu_desarrollo/`) tiene su propio `conftest.py` (idénticos entre sí) que crea y asegura la existencia de `/workspace/descargas/`.
+- Ambas suites (`test_usu_admin/`, `test_usu_desarrollo/`) comparten `tests_intranet/conftest.py` (fix 2026-09-02, ver arriba), que crea y asegura la existencia de `/workspace/descargas/`.
 - Se limpian artefactos previos (`reports/screen/*`, `descargas/*`) al inicio de cada sesión de pytest — rutas fijas, no parametrizadas por corrida.
 - `driver` se inicializa con `webdriver.Remote` hacia `http://selenium-chrome:4444/wd/hub`.
-- **Fix 2026-09-01**: la creación de la sesión remota y el `driver.get(URL)` inicial dentro del fixture `driver` están envueltos en `try/except` que llama `driver.quit()` y relanza si algo falla antes del `yield`. Antes de este fix, si `driver.get(URL)` fallaba (p. ej. la app bajo prueba caída o lenta), la excepción se propagaba antes del `yield` y `driver.quit()` (que está después del `yield`) nunca se ejecutaba — la sesión de Chrome quedaba huérfana en el grid. Como `selenium-chrome` solo admite una sesión simultánea (`maxSessions: 1`, default de la imagen), esa sesión huérfana bloqueaba cualquier corrida siguiente hasta que el grid la expiraba sola (`sessionTimeout` ~5 min), causando fallos en cascada de varios minutos cada uno. Aplicado igual en ambos `conftest.py` (`test_usu_admin` y `test_usu_desarrollo`, se mantienen idénticos).
+- **Fix 2026-09-01**: la creación de la sesión remota y el `driver.get(URL)` inicial dentro del fixture `driver` están envueltos en `try/except` que llama `driver.quit()` y relanza si algo falla antes del `yield`. Antes de este fix, si `driver.get(URL)` fallaba (p. ej. la app bajo prueba caída o lenta), la excepción se propagaba antes del `yield` y `driver.quit()` (que está después del `yield`) nunca se ejecutaba — la sesión de Chrome quedaba huérfana en el grid. Como `selenium-chrome` solo admite una sesión simultánea (`maxSessions: 1`, default de la imagen), esa sesión huérfana bloqueaba cualquier corrida siguiente hasta que el grid la expiraba sola (`sessionTimeout` ~5 min), causando fallos en cascada de varios minutos cada uno. Este fix vivía duplicado en ambos `conftest.py`; desde el fix 2026-09-02 vive una sola vez en `tests_intranet/conftest.py`, compartido por las dos suites.
 - `driver_logueado` realiza login usando los localizadores y credenciales definidos en `utili/config.py`.
 - `reset_logger` prepara el archivo de log antes de cada ejecución.
 - Al finalizar la sesión (`pytest_sessionfinish`), se escribe `resumen_ia.txt` y se lanza un hilo (no-daemon) que envía ese resumen a `ia-historias` — el proceso de pytest no termina del todo hasta que ese hilo acaba (hasta 1200s de timeout si `ia-historias` estuviera lento).
@@ -237,6 +238,21 @@ más allá del fix de `__init__.py` ya documentado arriba.
 - `tests/tests_intranet/{test_usu_admin,test_usu_desarrollo}/test_06_proyectos.py`: flujo de proyectos con ver, editar, volver y nuevo proyecto.
 - `tests/tests_intranet/{test_usu_admin,test_usu_desarrollo}/test_07_servidores.py`: flujo de servidores con inventario y detalle de servidor.
 - `tests/tests_intranet/{test_usu_admin,test_usu_desarrollo}/test_08_organigrama.py`: flujo de organigrama con opciones Completo, Áreas, Líderes y Mi Área. **Deshabilitado 2026-09-02** en ambas suites: `test_organigrama_flujo` llama a `click_sidebar_menu_item()` sin los argumentos obligatorios `texto_hijo`/`xpath_hijo_respaldo` (bug del test, `TypeError` garantizado) — comentado con nota hasta corregir la firma de las llamadas y reactivarlo. Ya estaba deshabilitado en `test_usu_desarrollo` desde el 2026-08-31; el 2026-09-02 se aplicó el mismo tratamiento a `test_usu_admin`, que seguía activo y roto.
+
+## `time.sleep` fuera de `utili/waits.py` (fix 2026-09-02)
+
+Quedaban algunos `time.sleep` sueltos en `test_usu_admin/test_03_horarios.py` y `test_usu_admin/test_05_inventario.py`
+(las copias equivalentes en `test_usu_desarrollo` ya estaban deshabilitadas, ver abajo). Tratamiento aplicado:
+
+- `test_05_inventario.py::test_inventario_crear_articulo_flow`: el `scrollIntoView` + `time.sleep(0.4)` + `.click()`
+  manual se reemplazó por `click_when_clickable()` (ya maneja ese mismo patrón internamente).
+- `test_03_horarios.py::test_estado_horario`: el `time.sleep(0.5)` antes del clic se reemplazó por una espera
+  explícita (`WebDriverWait` sobre `is_displayed()`/`is_enabled()` del elemento ya encontrado); el `time.sleep(5)`
+  fijo tras el clic se reemplazó por un poll acotado a 5s sobre `os.listdir()` que corta en cuanto aparece el
+  archivo, en vez de esperar siempre el máximo.
+- El `time.sleep(0.5)` restante (tras `window.scrollBy` dentro del loop de reintento) se dejó intacto a propósito:
+  es una pausa de estabilización sin una condición de DOM que esperar (el propio loop existe porque el elemento
+  todavía no se encuentra), documentado con un comentario en el código.
 
 ## Tests deshabilitados (usuario desarrollo, pendientes de revisión)
 

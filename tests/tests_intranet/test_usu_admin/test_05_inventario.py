@@ -3,7 +3,6 @@ from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from datetime import datetime
-import time
 import pytest
 import inspect
 from utili.config import *
@@ -16,7 +15,6 @@ from utili.waits import (
     wait_visible_xpath,
     wait_text_present,
     send_keys_when_visible,
-    wait_clickable_xpath,
 )
 
 
@@ -96,10 +94,7 @@ def test_inventario_crear_articulo_flow(driver_logueado):
         select2_select_option(driver_logueado, INV_FORM_COMPANY_SELECT, "Servitel")
 
         logger.info("Enviando formulario")
-        btn = wait_clickable_xpath(driver_logueado, INV_FORM_SUBMIT)
-        driver_logueado.execute_script("arguments[0].scrollIntoView({block:'center'});", btn)
-        time.sleep(0.4)
-        btn.click()
+        click_when_clickable(driver_logueado, INV_FORM_SUBMIT)
 
         logger.info("Esperando redirección a Inventario")
         WebDriverWait(driver_logueado, TIMEOUT).until(EC.url_contains('/inventario'))

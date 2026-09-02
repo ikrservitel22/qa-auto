@@ -15,6 +15,21 @@ from utili.locators import *
 from utili.logger import logger
 
 
+def _credenciales_por_rol(request):
+    """
+    test_usu_admin/ y test_usu_desarrollo/ comparten este conftest.py; se determina
+    el rol según la carpeta de suite del test que pide el fixture, para que cada uno
+    reciba sus propias credenciales sin depender de un global "activo" por proceso
+    (ver USUARIO_ADMIN/USUARIO_DESARROLLO en utili/config.py).
+    """
+    ruta = str(request.node.fspath)
+    if f"{os.sep}test_usu_admin{os.sep}" in ruta:
+        return USUARIO_ADMIN, PASSWORD_ADMIN
+    if f"{os.sep}test_usu_desarrollo{os.sep}" in ruta:
+        return USUARIO_DESARROLLO, PASSWORD_DESARROLLO
+    raise RuntimeError(f"No se pudo determinar el rol (admin/desarrollo) para: {ruta}")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def reset_logger():
     os.makedirs("/workspace/reports/logs", exist_ok=True)
@@ -143,20 +158,22 @@ def driver():
 
 
 @pytest.fixture
-def driver_logueado(driver):
+def driver_logueado(driver, request):
+    usuario, password = _credenciales_por_rol(request)
+
     logger.info(f"URL: {URL}")
-    logger.info(f"USUARIO: {USUARIO_ADMIN}")
+    logger.info(f"USUARIO: {usuario}")
 
     # Esperar elementos de login
     WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.XPATH, LOGIN_USUARIO))
     )
-    driver.find_element(By.XPATH, LOGIN_USUARIO).send_keys(USUARIO_ADMIN)
+    driver.find_element(By.XPATH, LOGIN_USUARIO).send_keys(usuario)
 
     WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.XPATH, LOGIN_PASSWORD))
     )
-    driver.find_element(By.XPATH, LOGIN_PASSWORD).send_keys(PASSWORD_ADMIN)
+    driver.find_element(By.XPATH, LOGIN_PASSWORD).send_keys(password)
 
     WebDriverWait(driver, TIMEOUT).until(
         EC.element_to_be_clickable((By.XPATH, LOGIN_BOTON))
