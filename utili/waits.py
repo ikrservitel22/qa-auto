@@ -6,19 +6,43 @@ from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from utili.config import TIMEOUT
 from utili.logger import logger
+from utili.errores import es_pagina_error_servidor, ErrorPaginaServidorDetectado
+
+# Después de este tiempo sin éxito, cada espera empieza a revisar si la página
+# es en realidad una pantalla de error del servidor, para cortar la espera de
+# inmediato en vez de agotar el timeout completo esperando un elemento que
+# nunca va a aparecer porque la página no es la que se esperaba. Se deja un
+# margen (en vez de revisar desde el primer poll) para no penalizar con
+# comandos extra al camino feliz, donde el elemento normalmente aparece rápido.
+GRACIA_DETECCION_ERROR_S = 2
+
+
+def _esperar_con_deteccion_de_error(driver, condicion, timeout):
+    inicio = time.monotonic()
+
+    def _condicion_vigilada(d):
+        if time.monotonic() - inicio >= GRACIA_DETECCION_ERROR_S:
+            es_error, tipo = es_pagina_error_servidor(d)
+            if es_error:
+                raise ErrorPaginaServidorDetectado(
+                    f"Se esperaba un elemento pero la página muestra un error de servidor ({tipo})"
+                )
+        return condicion(d)
+
+    return WebDriverWait(driver, timeout).until(_condicion_vigilada)
 
 
 def wait_visible_xpath(driver, xpath, timeout=None):
     t = timeout or TIMEOUT
-    return WebDriverWait(driver, t).until(
-        EC.visibility_of_element_located((By.XPATH, xpath))
+    return _esperar_con_deteccion_de_error(
+        driver, EC.visibility_of_element_located((By.XPATH, xpath)), t
     )
 
 
 def wait_clickable_xpath(driver, xpath, timeout=None):
     t = timeout or TIMEOUT
-    return WebDriverWait(driver, t).until(
-        EC.element_to_be_clickable((By.XPATH, xpath))
+    return _esperar_con_deteccion_de_error(
+        driver, EC.element_to_be_clickable((By.XPATH, xpath)), t
     )
 
 
@@ -70,9 +94,7 @@ def click_sidebar_menu_item(driver, texto_padre, xpath_padre_respaldo, texto_hij
 
 def wait_for_url(driver, url, timeout=None):
     t = timeout or TIMEOUT
-    return WebDriverWait(driver, t).until(
-        EC.url_to_be(url)
-    )
+    return _esperar_con_deteccion_de_error(driver, EC.url_to_be(url), t)
 
 
 def send_keys_when_visible(driver, xpath, text, timeout=None):
@@ -87,8 +109,8 @@ def send_keys_when_visible(driver, xpath, text, timeout=None):
 
 def wait_text_in_element(driver, xpath, text, timeout=None):
     t = timeout or TIMEOUT
-    return WebDriverWait(driver, t).until(
-        EC.text_to_be_present_in_element((By.XPATH, xpath), text)
+    return _esperar_con_deteccion_de_error(
+        driver, EC.text_to_be_present_in_element((By.XPATH, xpath), text), t
     )
 
 
@@ -96,16 +118,14 @@ def wait_text_present(driver, text, timeout=None):
     t = timeout or TIMEOUT
     xpath = f"//*[contains(normalize-space(.), '{text}') ]"
     # Permite buscar cualquier elemento cuyo texto contenga la cadena dada
-    return WebDriverWait(driver, t).until(
-        EC.visibility_of_element_located((By.XPATH, xpath))
+    return _esperar_con_deteccion_de_error(
+        driver, EC.visibility_of_element_located((By.XPATH, xpath)), t
     )
 
 
 def wait_text_in_page(driver, text, timeout=None):
     t = timeout or TIMEOUT
-    return WebDriverWait(driver, t).until(
-        lambda d: text in d.page_source
-    )
+    return _esperar_con_deteccion_de_error(driver, lambda d: text in d.page_source, t)
 
 def click_por_texto_o_xpath(driver, texto, xpath_respaldo, timeout=None):
     """
@@ -123,8 +143,8 @@ def click_por_texto_o_xpath(driver, texto, xpath_respaldo, timeout=None):
     )
 
     try:
-        elemento = WebDriverWait(driver, t).until(
-            EC.element_to_be_clickable((By.XPATH, xpath_texto))
+        elemento = _esperar_con_deteccion_de_error(
+            driver, EC.element_to_be_clickable((By.XPATH, xpath_texto)), t
         )
         logger.info(f"Elemento encontrado por texto: '{texto}'")
         elemento.click()
@@ -132,7 +152,7 @@ def click_por_texto_o_xpath(driver, texto, xpath_respaldo, timeout=None):
     except Exception:
         logger.warning(f"No se encontró por texto '{texto}', usando XPath de respaldo")
 
-    elemento = WebDriverWait(driver, t).until(
-        EC.element_to_be_clickable((By.XPATH, xpath_respaldo))
+    elemento = _esperar_con_deteccion_de_error(
+        driver, EC.element_to_be_clickable((By.XPATH, xpath_respaldo)), t
     )
     elemento.click()

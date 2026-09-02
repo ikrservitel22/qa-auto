@@ -19,13 +19,13 @@ def test_login(driver):
         logger.info("========== INICIO TEST_LOGIN ==========")
 
         logger.info(f"URL: {URL}")
-        logger.info(f"USUARIO: {USUARIO}")
+        logger.info(f"USUARIO: {USUARIO_DESARROLLO}")
 
         logger.info("Escribiendo usuario")
-        send_keys_when_visible(driver, LOGIN_USUARIO, USUARIO)
+        send_keys_when_visible(driver, LOGIN_USUARIO, USUARIO_DESARROLLO)
 
         logger.info("Escribiendo contraseña")
-        send_keys_when_visible(driver, LOGIN_PASSWORD, PASSWORD)
+        send_keys_when_visible(driver, LOGIN_PASSWORD, PASSWORD_DESARROLLO)
 
         logger.info("Pulsando botón Ingresar")
         click_when_clickable(driver, LOGIN_BOTON)

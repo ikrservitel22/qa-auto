@@ -17,6 +17,64 @@ from selenium.common.exceptions import (
 )
 from utili.logger import logger
 
+# Catálogo de códigos de estado HTTP de error (4xx/5xx) según el registro oficial
+# de IANA. `es_pagina_error_servidor` lo usa para reconocer cualquier error HTTP
+# genérico (Nginx/Apache/etc.) por su código o su frase estándar en inglés, en vez
+# de depender de una lista corta armada a mano que se queda corta (ej. el 501 no
+# estaba antes y un test con ese error se quedaba clasificado como TIEMPO_ESPERA).
+# Se excluyen 401 y 419 porque ya tienen su propia categoría más específica más
+# abajo (ERROR_PERMISOS / SESION_EXPIRADA).
+HTTP_STATUS_REASONS = {
+    "400": "Bad Request",
+    "402": "Payment Required",
+    "403": "Forbidden",
+    "404": "Not Found",
+    "405": "Method Not Allowed",
+    "406": "Not Acceptable",
+    "407": "Proxy Authentication Required",
+    "408": "Request Timeout",
+    "409": "Conflict",
+    "410": "Gone",
+    "411": "Length Required",
+    "412": "Precondition Failed",
+    "413": "Content Too Large",
+    "414": "URI Too Long",
+    "415": "Unsupported Media Type",
+    "416": "Range Not Satisfiable",
+    "417": "Expectation Failed",
+    "421": "Misdirected Request",
+    "422": "Unprocessable Content",
+    "423": "Locked",
+    "424": "Failed Dependency",
+    "425": "Too Early",
+    "426": "Upgrade Required",
+    "428": "Precondition Required",
+    "429": "Too Many Requests",
+    "431": "Request Header Fields Too Large",
+    "451": "Unavailable For Legal Reasons",
+    "500": "Internal Server Error",
+    "501": "Not Implemented",
+    "502": "Bad Gateway",
+    "503": "Service Unavailable",
+    "504": "Gateway Timeout",
+    "505": "HTTP Version Not Supported",
+    "506": "Variant Also Negotiates",
+    "507": "Insufficient Storage",
+    "508": "Loop Detected",
+    "510": "Not Extended",
+    "511": "Network Authentication Required",
+}
+
+
+class ErrorPaginaServidorDetectado(Exception):
+    """
+    La lanzan los helpers de espera de `utili/waits.py` cuando, mientras se espera
+    un elemento, la página resulta ser una pantalla de error del servidor (permisos,
+    mantenimiento, HTTP genérico, etc.) — corta la espera de inmediato en vez de
+    agotar el timeout completo esperando un elemento que nunca va a aparecer.
+    """
+
+
 # Tipos que vale la pena reintentar automáticamente (son fallas
 # transitorias de timing/render, no defectos reales de la app).
 REINTENTABLES = {
@@ -39,7 +97,13 @@ def tipificar_error(error):
     porque varias excepciones de Selenium heredan de WebDriverException.
     """
 
-    if isinstance(error, NoSuchElementException):
+    if isinstance(error, ErrorPaginaServidorDetectado):
+        # manejar_error_test vuelve a leer la página y sobreescribe esto con el
+        # tipo específico (ERROR_PERMISOS, MANTENIMIENTO, etc.); esto es solo
+        # el respaldo por si esa relectura llegara a fallar.
+        return "ERROR_HTTP"
+
+    elif isinstance(error, NoSuchElementException):
         return "ELEMENTO_NO_ENCONTRADO"
 
     elif isinstance(error, TimeoutException):
@@ -169,9 +233,9 @@ def es_pagina_error_servidor(driver):
             "MethodNotAllowedHttpException", "NotFoundHttpException", "QueryException",
         ],
         "ERROR_HTTP": [
-            "400", "403", "404", "500", "502", "503", "504",
-            "Bad Request", "Forbidden", "Not Found", "Bad Gateway",
-            "Service Unavailable", "Gateway Timeout",
+            item
+            for codigo, frase in HTTP_STATUS_REASONS.items()
+            for item in (codigo, frase)
         ],
     }
 

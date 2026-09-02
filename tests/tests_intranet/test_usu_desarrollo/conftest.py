@@ -113,18 +113,23 @@ def driver():
         options=options
     )
 
-    # Forzar comportamiento de descargas vía CDP para Chromedriver/Chrome
-    # Esto le indica al navegador la carpeta donde escribir descargas sin mostrar diálogos.
     try:
-        driver.execute_cdp_cmd("Page.setDownloadBehavior", {
-            "behavior": "allow",
-            "downloadPath": container_download_dir
-        })
-    except Exception:
-        # Algunos drivers/remotes pueden no soportar CDP; en ese caso las prefs ayudan.
-        pass
+        # Forzar comportamiento de descargas vía CDP para Chromedriver/Chrome
+        # Esto le indica al navegador la carpeta donde escribir descargas sin mostrar diálogos.
+        try:
+            driver.execute_cdp_cmd("Page.setDownloadBehavior", {
+                "behavior": "allow",
+                "downloadPath": container_download_dir
+            })
+        except Exception:
+            # Algunos drivers/remotes pueden no soportar CDP; en ese caso las prefs ayudan.
+            pass
 
-    driver.get(URL)
+        driver.get(URL)
+    except Exception:
+        # Si algo falla antes del yield, cerrar la sesión remota para no dejarla huérfana en el grid.
+        driver.quit()
+        raise
 
     # Nota para el usuario: asegúrate de montar la carpeta del host en el contenedor
     # por ejemplo, en `docker run` o `docker-compose` del nodo Chrome:
@@ -140,18 +145,18 @@ def driver():
 @pytest.fixture
 def driver_logueado(driver):
     logger.info(f"URL: {URL}")
-    logger.info(f"USUARIO: {USUARIO}")
+    logger.info(f"USUARIO: {USUARIO_DESARROLLO}")
 
     # Esperar elementos de login
     WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.XPATH, LOGIN_USUARIO))
     )
-    driver.find_element(By.XPATH, LOGIN_USUARIO).send_keys(USUARIO)
+    driver.find_element(By.XPATH, LOGIN_USUARIO).send_keys(USUARIO_DESARROLLO)
 
     WebDriverWait(driver, TIMEOUT).until(
         EC.presence_of_element_located((By.XPATH, LOGIN_PASSWORD))
     )
-    driver.find_element(By.XPATH, LOGIN_PASSWORD).send_keys(PASSWORD)
+    driver.find_element(By.XPATH, LOGIN_PASSWORD).send_keys(PASSWORD_DESARROLLO)
 
     WebDriverWait(driver, TIMEOUT).until(
         EC.element_to_be_clickable((By.XPATH, LOGIN_BOTON))

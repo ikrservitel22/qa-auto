@@ -23,9 +23,11 @@ SUITE_PATHS = {
     Suite.unit: "tests/test_utili_errores.py",
 }
 
-GRID_STATUS_URL = "http://selenium-chrome:4444/wd/hub/status"
+GRID_HUB_URL = "http://selenium-chrome:4444/wd/hub"
+GRID_STATUS_URL = f"{GRID_HUB_URL}/status"
 GRID_READY_TIMEOUT_S = 60
 GRID_POLL_INTERVAL_S = 2
+GRID_SESSION_DELETE_TIMEOUT_S = 10
 RUN_TIMEOUT_S = 45 * 60
 
 
@@ -44,6 +46,34 @@ def _grid_ready(timeout_s: int = GRID_READY_TIMEOUT_S) -> bool:
             pass
         time.sleep(GRID_POLL_INTERVAL_S)
     return False
+
+
+def _active_grid_session_ids() -> list[str]:
+    try:
+        resp = requests.get(GRID_STATUS_URL, timeout=5)
+        resp.raise_for_status()
+    except requests.RequestException:
+        return []
+
+    session_ids = []
+    for node in resp.json().get("value", {}).get("nodes", []):
+        for slot in node.get("slots", []):
+            session = slot.get("session")
+            if session and session.get("sessionId"):
+                session_ids.append(session["sessionId"])
+    return session_ids
+
+
+def _kill_active_grid_sessions() -> None:
+    # Al matar el subproceso de pytest a la fuerza (timeout o shutdown), el teardown normal
+    # del fixture `driver` (driver.quit()) no llega a ejecutarse y la sesión de Chrome queda
+    # huérfana ocupando el único slot del nodo (maxSessions=1) hasta que el grid la expira sola
+    # (~5 min). Borrarla aquí libera el slot de inmediato para la siguiente corrida encolada.
+    for session_id in _active_grid_session_ids():
+        try:
+            requests.delete(f"{GRID_HUB_URL}/session/{session_id}", timeout=GRID_SESSION_DELETE_TIMEOUT_S)
+        except requests.RequestException:
+            pass
 
 
 def _archive_fixed_artifacts(run_id: str) -> None:
@@ -91,6 +121,7 @@ class RunQueue:
                 self._current_proc.wait(timeout=10)
             except subprocess.TimeoutExpired:
                 self._current_proc.kill()
+            _kill_active_grid_sessions()
         if self._worker_task is not None:
             self._worker_task.cancel()
             try:
@@ -164,6 +195,7 @@ class RunQueue:
             except subprocess.TimeoutExpired:
                 proc.kill()
                 proc.wait()
+                _kill_active_grid_sessions()
                 return None, True
             finally:
                 self._current_proc = None
